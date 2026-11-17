@@ -1,36 +1,27 @@
-# 은하열차 통신
+# 포트폴리오 블로그
 
-## 기본 경로 자기소개
+빈티지 종이 색과 세리프 글꼴을 사용한 단순한 포트폴리오 블로그입니다. 기본 경로(`/`)에는 소개, STUDY, PROJECTS, JOURNAL이 보입니다. 소개 문구와 게시글은 빈 상태에서 시작합니다.
 
-`/`에는 빈 자기소개 페이지가 표시됩니다. 오른쪽 아래 `관리`에서 관리자 비밀번호로 로그인하면 이름, 한 줄 소개, 소개글을 편집하거나 모두 비울 수 있습니다. 내용은 D1의 `site_intro` 테이블에 저장됩니다. 최초 관리자 로그인에는 Worker 런타임 Secret `ADMIN_INITIAL_PASSWORD`가 필요하며, 기존 관리자 비밀번호가 이미 설정된 경우에는 그 비밀번호를 사용합니다.
+오른쪽 위 `관리`에서 관리자 비밀번호로 로그인하면 소개를 편집하고, 분류별 글을 작성·수정·삭제할 수 있습니다. 글 상세 주소는 `/blog/<id>`입니다. 내용은 Cloudflare D1의 `portfolio_blog_profile`과 `portfolio_blog_posts` 테이블에 저장됩니다.
 
-기존 290의 놀이터를 개편한 붕괴: 스타레일 팬 역할극 게시판. 6개 지역, 22개 편집 시점, 105개 창작 게시글, 73개 캐릭터/형태 프로필을 제공합니다.
+관리자 인증은 기존 관리자 계정과 세션을 사용합니다. 최초 로그인 전에 Worker 런타임 Secret `ADMIN_INITIAL_PASSWORD`를 설정해야 합니다. 비밀번호를 소스 코드에 저장하지 마세요.
 
-- 가입 없이 캐릭터 선택, 글 작성·수정·삭제, 댓글·댓글 삭제, 공감, 검색·정렬·페이지 이동.
-- 같은 캐릭터를 고른 방문자도 작성 권한은 독립적입니다. HttpOnly 세션 30일. 쿠키를 지우거나 만료되면 기존 권한을 복구할 수 없습니다.
-- 스토리 시점 필터는 기본 스토리 글에만 적용합니다. 이용자 글은 모든 시점에 표시하고, 댓글은 게시글이 공개되면 모두 표시합니다.
-- 신규 `/api/astral`은 기존 D1 DB에 `astral_*` 테이블을 처음 요청 시 생성하고 고유 ID로 105개 초기 글을 삽입합니다. 기존 members/posts 테이블은 보존합니다.
-- 기존 `/api/community`는 공개 배포에서 사용하지 않도록 410 응답으로 비활성화했습니다. 과거 데이터베이스 테이블은 삭제하지 않습니다. `/login`은 캐릭터 선택 안내로 변경했습니다.
-- 창작 게시글은 `lib/astral-data.ts`와 `lib/astral-extra.ts`, `lib/astral-story-posts.json`, 인물 목록은 `lib/astral-characters.json`, 이미지 출처는 `public/characters/attribution.json`입니다. 편집자가 제공한 초기 글의 제목·본문·시점은 초기화 때 동기화하며 방문자 글은 덮어쓰지 않습니다. 개척자 기본 글 7개는 제거했으며 나머지 71개 프로필에 기본 글이 있습니다. 개척자 프로필 선택과 이용자 작성 글은 유지합니다.
+## 로컬 실행
 
-## 실행·검증
+Node.js 22.13 이상이 필요합니다.
 
-`npm run dev` / `npm run build` / `node tests/astral.test.mjs` / `node node_modules/typescript/bin/tsc --noEmit`
+```sh
+npm ci
+npm run dev
+```
 
-로컬 실행의 D1 데이터와 호스팅 데이터는 서로 별개입니다. 현재 기본 실행·빌드는 Cloudflare Workers 직접 배포용입니다. Sites 플러그인·로그인·커넥터를 실행 경로에서 분리했습니다. `.openai`와 기존 Sites 보조 파일은 과거 작업 이력으로 남아 있으며 현재 빌드에서는 사용하지 않습니다.
+## 확인 및 배포
 
-배포 절차는 [Cloudflare 배포 안내](./CLOUDFLARE_DEPLOY.md)를 참고하세요. 실제 Cloudflare 계정 연결, 원격 D1 생성, 배포, 도메인 변경은 아직 실행하지 않았습니다. `wrangler.json`의 DB ID는 로컬 검증용 자리표시자입니다.
+```sh
+npm run typecheck
+npm test
+npm run build
+npm run deploy
+```
 
-- `npm run typecheck`: 타입 검사
-- `npm test`: 게시판 API·권한 테스트
-- `npm run deploy:dry-run`: 빌드와 업로드 구성 검증 (업로드 없음)
-- `npm start`: 빌드된 Worker를 로컬에서 실행
-- `npm run deploy`: D1 ID 검사 후 빌드·실제 배포
-
-의존성은 검증한 lockfile 버전을 유지합니다. 신규 설치는 Node.js 22.13 이상에서 `npm ci`를 사용하세요. 프로젝트에는 `node:sqlite` 기반 테스트가 있으므로 Node.js 22.13 이상이 필요합니다.
-
-## 관리자와 신고
-
-관리자 인증, 사용자 차단, 방문자 글 통합 관리, 글·댓글 신고가 추가되었습니다. 최초 온라인 적용은 [ADMIN_SETUP.md](./ADMIN_SETUP.md)의 런타임 Secret 설정이 필요합니다. 초기 비밀번호는 공개 저장소에 포함하지 않습니다.
-
-추가한 글 22개와 본문 전문은 [게시글 추가 보고](./게시글_추가보고.md)에 정리했습니다. 기존 DB의 개척자 기본 글은 배포 후 첫 API 요청 시 제거됩니다. 이용자 글에는 적용하지 않습니다.
+`wrangler.json`의 D1 바인딩과 Cloudflare 계정 로그인이 준비되어야 배포할 수 있습니다. 현재 작업 환경에는 Cloudflare 로그인이 연결되어 있지 않습니다.
