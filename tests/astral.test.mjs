@@ -83,6 +83,13 @@ assert.equal((await post({action:'select',character:'__admin__'},b.cookie)).stat
 assert.equal((await post({action:'adminLogin',password:'incorrect'},'','admin-wrong')).status,401);
 const login=await post({action:'adminLogin',password:secret},'','admin-good');assert.equal(login.status,200);assert.match(login.header,/HttpOnly/);assert.match(login.header,/Secure/);assert.match(login.header,/SameSite=Strict/);
 const adminCookie=login.cookie;
+async function introGet(){const r=await GET(new Request(origin+'/api/astral?intro=1'));return {status:r.status,data:await r.json()}}
+assert.deepEqual((await introGet()).data.intro,{name:'',tagline:'',body:''});
+assert.equal((await post({action:'adminIntroUpdate',name:'방문자',tagline:'',body:''})).status,401);
+assert.equal((await post({action:'adminIntroUpdate',name:'',tagline:'',body:''},adminCookie)).status,200);
+assert.equal((await post({action:'adminIntroUpdate',name:'',tagline:'',body:'A'.repeat(2001)},adminCookie)).status,400);
+assert.equal((await post({action:'adminIntroUpdate',name:'290',tagline:'탐정의 기록',body:'첫 번째 이야기'},adminCookie)).status,200);
+assert.deepEqual((await introGet()).data.intro,{name:'290',tagline:'탐정의 기록',body:'첫 번째 이야기'});
 const free=await post({action:'save',region:'general',at:undefined,title:'Free discussion',body:'No region or time'},b.cookie,'free');assert.equal(free.status,200);
 assert.equal((await get(0,'',free.data.id)).data.post.region,'general');
 assert.equal((await post({action:'save',region:'notice',title:'Unauthorized',body:'No'},b.cookie,'notice-denied')).status,403);

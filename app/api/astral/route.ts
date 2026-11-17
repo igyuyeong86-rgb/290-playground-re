@@ -30,6 +30,7 @@ async function storeImage(key:string,data:Uint8Array){
  if(result.public_id!==cloudId(key)||result.format!=='webp')throw new Error('이미지 저장소 응답을 확인하지 못했습니다. 다시 시도해 주세요.');
 }
 const tables=[
+ 'CREATE TABLE IF NOT EXISTS site_intro (id INTEGER PRIMARY KEY CHECK(id=1), name TEXT NOT NULL, tagline TEXT NOT NULL, body TEXT NOT NULL, updated INTEGER NOT NULL)',
  'CREATE TABLE IF NOT EXISTS astral_revision (name TEXT PRIMARY KEY, value TEXT NOT NULL)',
  'CREATE TABLE IF NOT EXISTS astral_recovery (owner TEXT PRIMARY KEY, digest TEXT NOT NULL)',
  'CREATE TABLE IF NOT EXISTS astral_logins (owner TEXT PRIMARY KEY, created INTEGER NOT NULL)',
@@ -101,7 +102,10 @@ async function limit(req:Request,kind:string,max:number){
 function publicPost(p:any,me:Session|null){const {owner,male,female,...rest}=p;return {...rest,displayName:authorName(p.character,male,female),memes:JSON.parse(p.memes),owned:!!me&&owner===me.owner&&!p.seeded}}
 const selectPost=`SELECT p.*, a.male,a.female, (SELECT COUNT(*) FROM astral_likes l WHERE l.post=p.id) AS likes, (SELECT COUNT(*) FROM astral_comments c WHERE c.post=p.id AND NOT EXISTS(SELECT 1 FROM astral_trash t WHERE t.id=c.id)) AS comments FROM astral_posts p LEFT JOIN astral_accounts a ON a.owner=p.owner`;
 export async function GET(req:Request){try{
- await init();const url=new URL(req.url);if(url.searchParams.has('activity'))return activityRead(req,url);if(url.searchParams.has('account'))return json({account:accountView(await accountSession(req))});if(url.searchParams.has('image'))return await serveImage(url);if(url.searchParams.has('admin'))return adminRead(req,url);const at=['all','general'].includes(url.searchParams.get('board')||'')?checkpoints.length-1:checkpoint(url.searchParams.get('at')??2),me=await session(req),id=url.searchParams.get('id');
+ await init();const url=new URL(req.url);if(url.searchParams.has('intro')){
+  const intro=await db().prepare('SELECT name,tagline,body FROM site_intro WHERE id=1').first<{name:string;tagline:string;body:string}>();
+  return json({intro:intro||{name:'',tagline:'',body:''}});
+ }if(url.searchParams.has('activity'))return activityRead(req,url);if(url.searchParams.has('account'))return json({account:accountView(await accountSession(req))});if(url.searchParams.has('image'))return await serveImage(url);if(url.searchParams.has('admin'))return adminRead(req,url);const at=['all','general'].includes(url.searchParams.get('board')||'')?checkpoints.length-1:checkpoint(url.searchParams.get('at')??2),me=await session(req),id=url.searchParams.get('id');
  if(id){
   const p=await db().prepare(selectPost+' WHERE p.id=? AND (p.seeded=0 OR p.at<=?) AND NOT EXISTS(SELECT 1 FROM astral_hidden h WHERE h.post=p.id)').bind(id,at).first<any>();
   if(!p)return json({error:'이 시점에는 볼 수 없는 게시글입니다.'},404);
@@ -252,6 +256,12 @@ async function adminWrite(req:Request,b:any){
  }
  const admin=await administrator(req);if(!admin)return json({error:'관리자 로그인이 필요합니다.'},401);
  if(b.action==='adminLogout'){await revokeAdmin(req);return json({ok:true},200,{'Set-Cookie':adminCookie(req,'',0)})}
+ if(b.action==='adminIntroUpdate'){
+  if(typeof b.name!=='string'||typeof b.tagline!=='string'||typeof b.body!=='string'||b.name.length>60||b.tagline.length>120||b.body.length>2000)return json({error:'입력 내용의 길이를 확인해 주세요.'},400);
+  const name=b.name.trim(),tagline=b.tagline.trim(),body=b.body.trim();
+  await db().prepare('INSERT INTO site_intro(id,name,tagline,body,updated) VALUES (1,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,tagline=excluded.tagline,body=excluded.body,updated=excluded.updated').bind(name,tagline,body,Date.now()).run();
+  return json({ok:true,intro:{name,tagline,body}});
+ }
  if(b.action==='adminPassword'){
   await limit(req,'admin-password',5);
   const current=passwordField(b.current),next=passwordField(b.next);
