@@ -52,6 +52,14 @@ try {
   assert(outgoing[1].startsWith("내일"));
   const second = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"));
   assert.equal(second.sent, 0);
+  kv.delete("sent:2026-11-18:오늘:0");
+  globalThis.fetch = async (url) => String(url).includes("oauth/token")
+    ? Response.json({ access_token: "access" })
+    : Response.json({ code: -2, msg: "Invalid link domain" }, { status: 400 });
+  await assert.rejects(
+    sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z")),
+    /발송 실패 \(-2\): Invalid link domain/,
+  );
 } finally {
   globalThis.fetch = originalFetch;
 }

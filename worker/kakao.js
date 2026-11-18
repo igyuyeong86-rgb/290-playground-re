@@ -107,7 +107,11 @@ async function sendMessage(accessToken, text) {
     signal: AbortSignal.timeout(10000),
   });
   const result = await response.json();
-  if (!response.ok || result.result_code !== 0) throw new Error("카카오톡 메시지 발송에 실패했습니다.");
+  if (!response.ok || result.result_code !== 0) {
+    const code = result.code ?? result.result_code ?? response.status;
+    const detail = String(result.msg ?? result.message ?? "원인을 확인할 수 없습니다.").replace(/[\r\n\t]/g, " ").slice(0, 160);
+    throw new Error(`카카오톡 메시지 발송 실패 (${code}): ${detail}`);
+  }
 }
 export async function sendDaily(env, getWeeks, now = new Date()) {
   required(env);
