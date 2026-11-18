@@ -58,6 +58,8 @@ Copy `.env.example`:
 | `STATIC_EXPORT` | *(unset)* | `1` builds a static `out/` folder instead of a Node server build. |
 
 ## Deploy
+**Cloudflare Workers** — use `npm run deploy` as the deploy command for the existing `290-playground` Worker. This publishes the static `out/` directory at the domain root. If Workers Builds already runs `npm run build`, the deploy command reuses that export.
+
 **Netlify / Vercel / any Node host** — connect the repo and set `NEXT_PUBLIC_SITE_URL` to your domain. Security headers, the CSP and the `/work` redirect apply in this mode (`netlify.toml` is included).
 
 **GitHub Pages (static export)** — no server, no Actions required:

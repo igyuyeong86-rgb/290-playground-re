@@ -3,8 +3,10 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === "production";
 // `STATIC_EXPORT=1` builds plain HTML into ./out for static hosts such as GitHub Pages (see README > Deploy).
 // Static export has no server, so custom headers, redirects and the image optimizer are disabled.
-const isExport = process.env.STATIC_EXPORT === "1";
-if (isProd && !process.env.NEXT_PUBLIC_SITE_URL) {
+const isWorkersBuild = process.env.WORKERS_CI === "1";
+const isExport = process.env.STATIC_EXPORT === "1" || isWorkersBuild;
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (isWorkersBuild ? "https://playgroundandsandboxof290.xyz" : undefined);
+if (isProd && !siteUrl) {
   console.warn("\n[quietfolio] NEXT_PUBLIC_SITE_URL is not set: canonical URLs, sitemap and social tags will point to https://example.com\n");
 }
 const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
@@ -47,6 +49,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   basePath,
+  ...(siteUrl ? { env: { NEXT_PUBLIC_SITE_URL: siteUrl } } : {}),
   ...(isExport
     ? { output: "export", trailingSlash: true, images: { loader: "custom", loaderFile: "./lib/image-loader.ts" } }
     : { ...serverOnly, images: { formats: ["image/avif", "image/webp"] } }),
