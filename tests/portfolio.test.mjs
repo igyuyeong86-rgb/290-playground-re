@@ -24,7 +24,7 @@ assert.equal((await get('?session=1')).status,401);
 assert.equal((await post({action:'adminBlogProfileUpdate',name:'',headline:'',about:''})).status,401);
 assert.equal((await post({action:'adminLogin',password:'wrong-password'},'','wrong')).status,401);
 const login=await post({action:'adminLogin',password:'test-password-123'},'','good');
-assert.equal(login.status,200);assert.match(login.header,/HttpOnly/);assert.match(login.header,/SameSite=Strict/);assert.match(login.header,/Secure/);
+assert.equal(login.status,200);assert.match(login.header,/portfolio_admin=/);assert.match(login.header,/HttpOnly/);assert.match(login.header,/SameSite=Strict/);assert.match(login.header,/Secure/);
 assert.equal((await get('?session=1',login.cookie)).status,200);
 assert.equal((await post({action:'adminBlogProfileUpdate',name:'',headline:'',about:''},login.cookie)).status,200);
 assert.equal((await post({action:'adminBlogPostSave',title:'Empty',category:'study',excerpt:'',body:''},login.cookie)).status,400);

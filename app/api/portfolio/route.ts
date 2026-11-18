@@ -3,8 +3,8 @@ import {env} from 'cloudflare:workers';
 export const dynamic='force-dynamic';
 const db=()=>env.DB!;
 const schema=[
- 'CREATE TABLE IF NOT EXISTS astral_admin (id INTEGER PRIMARY KEY CHECK(id=1), salt TEXT NOT NULL, password TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1)',
- 'CREATE TABLE IF NOT EXISTS astral_admin_sessions (token TEXT PRIMARY KEY, expires INTEGER NOT NULL, version INTEGER NOT NULL)',
+ 'CREATE TABLE IF NOT EXISTS portfolio_admin (id INTEGER PRIMARY KEY CHECK(id=1), salt TEXT NOT NULL, password TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1)',
+ 'CREATE TABLE IF NOT EXISTS portfolio_admin_sessions (token TEXT PRIMARY KEY, expires INTEGER NOT NULL, version INTEGER NOT NULL)',
  'CREATE TABLE IF NOT EXISTS portfolio_login_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL)',
  'CREATE TABLE IF NOT EXISTS portfolio_blog_profile (id INTEGER PRIMARY KEY CHECK(id=1), name TEXT NOT NULL, headline TEXT NOT NULL, about TEXT NOT NULL)',
  'CREATE TABLE IF NOT EXISTS portfolio_blog_posts (id TEXT PRIMARY KEY, title TEXT NOT NULL, category TEXT NOT NULL, excerpt TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL, updated INTEGER NOT NULL)'
@@ -15,9 +15,9 @@ const json=(value:unknown,status=200,headers:Record<string,string>={})=>Response
 async function digest(value:string){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),b=>b.toString(16).padStart(2,'0')).join('')}
 async function passwordHash(value:string,salt:string){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(value),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode(salt),iterations:100000},key,256);return Array.from(new Uint8Array(bits),b=>b.toString(16).padStart(2,'0')).join('')}
 function equal(a:string,b:string){let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)diff|=(a.charCodeAt(i)||0)^(b.charCodeAt(i)||0);return diff===0}
-const token=(req:Request)=>req.headers.get('cookie')?.match(/(?:^|;\s*)astral_admin=([^;]+)/)?.[1];
-const cookie=(req:Request,value:string,age=28800)=>`astral_admin=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}${new URL(req.url).protocol==='https:'?'; Secure':''}`;
-async function administrator(req:Request){const value=token(req);if(!value)return null;return db().prepare('SELECT s.version FROM astral_admin_sessions s JOIN astral_admin a ON a.id=1 AND a.version=s.version WHERE s.token=? AND s.expires>?').bind(await digest(value),Date.now()).first<{version:number}>()}
+const token=(req:Request)=>req.headers.get('cookie')?.match(/(?:^|;\s*)portfolio_admin=([^;]+)/)?.[1];
+const cookie=(req:Request,value:string,age=28800)=>`portfolio_admin=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}${new URL(req.url).protocol==='https:'?'; Secure':''}`;
+async function administrator(req:Request){const value=token(req);if(!value)return null;return db().prepare('SELECT s.version FROM portfolio_admin_sessions s JOIN portfolio_admin a ON a.id=1 AND a.version=s.version WHERE s.token=? AND s.expires>?').bind(await digest(value),Date.now()).first<{version:number}>()}
 async function loginLimit(req:Request){const key=await digest((req.headers.get('cf-connecting-ip')||'local')+':portfolio-login'),now=Date.now();await db().prepare('INSERT INTO portfolio_login_limits(key,count,expires) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=CASE WHEN expires<? THEN 1 ELSE count+1 END,expires=CASE WHEN expires<? THEN ? ELSE expires END').bind(key,now+60000,now,now,now+60000).run();const row=await db().prepare('SELECT count FROM portfolio_login_limits WHERE key=?').bind(key).first<{count:number}>();return (row?.count||0)<=5}
 function clean(value:unknown,max:number,required=false){if(typeof value!=='string'||value.length>max||required&&!value.trim())throw new Error('입력 내용을 확인해 주세요.');return value.trim()}
 function validId(value:unknown){return typeof value==='string'&&/^[a-f0-9-]{36}$/i.test(value)}
@@ -39,13 +39,13 @@ export async function POST(req:Request){
   if(b.action==='adminLogin'){
    if(!await loginLimit(req))return json({error:'잠시 후 다시 시도해 주세요.'},429);
    const value=clean(b.password,128,true);if(value.length<6)return json({error:'비밀번호를 확인해 주세요.'},400);
-   let account=await db().prepare('SELECT * FROM astral_admin WHERE id=1').first<{salt:string;password:string;version:number}>();
-   if(!account){const initial=(env as unknown as {ADMIN_INITIAL_PASSWORD?:string}).ADMIN_INITIAL_PASSWORD;if(!initial)return json({error:'초기 관리자 비밀번호 설정이 필요합니다.'},503);const salt=crypto.randomUUID();if(!equal(await passwordHash(value,salt),await passwordHash(initial,salt)))return json({error:'비밀번호가 올바르지 않습니다.'},401);await db().prepare('INSERT OR IGNORE INTO astral_admin(id,salt,password,version) VALUES (1,?,?,1)').bind(salt,await passwordHash(initial,salt)).run();account=await db().prepare('SELECT * FROM astral_admin WHERE id=1').first<{salt:string;password:string;version:number}>()}
+   let account=await db().prepare('SELECT * FROM portfolio_admin WHERE id=1').first<{salt:string;password:string;version:number}>();
+   if(!account){const initial=(env as unknown as {ADMIN_INITIAL_PASSWORD?:string}).ADMIN_INITIAL_PASSWORD;if(!initial)return json({error:'초기 관리자 비밀번호 설정이 필요합니다.'},503);const salt=crypto.randomUUID();if(!equal(await passwordHash(value,salt),await passwordHash(initial,salt)))return json({error:'비밀번호가 올바르지 않습니다.'},401);await db().prepare('INSERT OR IGNORE INTO portfolio_admin(id,salt,password,version) VALUES (1,?,?,1)').bind(salt,await passwordHash(initial,salt)).run();account=await db().prepare('SELECT * FROM portfolio_admin WHERE id=1').first<{salt:string;password:string;version:number}>()}
    if(!account||!equal(await passwordHash(value,account.salt),account.password))return json({error:'비밀번호가 올바르지 않습니다.'},401);
-   const valueToken=crypto.randomUUID()+crypto.randomUUID();await db().prepare('INSERT INTO astral_admin_sessions(token,expires,version) VALUES (?,?,?)').bind(await digest(valueToken),Date.now()+28800000,account.version).run();return json({ok:true},200,{'Set-Cookie':cookie(req,valueToken)});
+   const valueToken=crypto.randomUUID()+crypto.randomUUID();await db().prepare('INSERT INTO portfolio_admin_sessions(token,expires,version) VALUES (?,?,?)').bind(await digest(valueToken),Date.now()+28800000,account.version).run();return json({ok:true},200,{'Set-Cookie':cookie(req,valueToken)});
   }
   if(!await administrator(req))return json({error:'관리자 로그인이 필요합니다.'},401);
-  if(b.action==='adminLogout'){const value=token(req);if(value)await db().prepare('DELETE FROM astral_admin_sessions WHERE token=?').bind(await digest(value)).run();return json({ok:true},200,{'Set-Cookie':cookie(req,'',0)})}
+  if(b.action==='adminLogout'){const value=token(req);if(value)await db().prepare('DELETE FROM portfolio_admin_sessions WHERE token=?').bind(await digest(value)).run();return json({ok:true},200,{'Set-Cookie':cookie(req,'',0)})}
   if(b.action==='adminBlogProfileUpdate'){const profile={name:clean(b.name,80),headline:clean(b.headline,160),about:clean(b.about,4000)};await db().prepare('INSERT INTO portfolio_blog_profile(id,name,headline,about) VALUES (1,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,headline=excluded.headline,about=excluded.about').bind(profile.name,profile.headline,profile.about).run();return json({ok:true,profile})}
   if(b.action==='adminBlogPostSave'){
    const title=clean(b.title,140,true),excerpt=clean(b.excerpt,300),body=clean(b.body,20000,true),category=b.category;if(!['study','project','note'].includes(category))return json({error:'글 분류를 확인해 주세요.'},400);
