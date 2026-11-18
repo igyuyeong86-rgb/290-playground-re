@@ -5,10 +5,10 @@
 export const profile = {
   name: "twoninezero",
   short: "290",
-  role: "Full Stack Developer",
-  location: "Anywhere, Earth",
+  role: "cybersecurity student",
+  location: "충주, 건국대학교 글로컬캠퍼스",
   timezone: "UTC",
-  email: "hello@example.com",
+  email: "igyuyeong86@gmail.com",
   github: "https://github.com/octocat",
   githubUser: "octocat", // powers the GitHub activity graph
   linkedin: "https://www.linkedin.com/in/your-handle",
