@@ -11,9 +11,9 @@ export default function Hero() {
     <section id="home">
       <div className="relative h-36 overflow-hidden border-b border-line sm:h-44">
         <picture>
-          <source media="(prefers-reduced-motion: reduce)" srcSet={withBase("/img/banner-static.png")} />
-          <source type="image/webp" srcSet={withBase("/img/banner.webp")} />
-          <img src={withBase("/img/banner.gif")} alt="" width={1200} height={300} fetchPriority="high" decoding="async"
+          <source media="(prefers-reduced-motion: reduce)" srcSet={withBase("/img/matrix-290-poster.png")} />
+          <source type="image/webp" srcSet={withBase("/img/matrix-290-banner.webp")} />
+          <img src={withBase("/img/matrix-290-banner.gif")} alt="" width={1200} height={300} fetchPriority="high" decoding="async"
             className="absolute inset-0 size-full object-cover object-center [image-rendering:pixelated]" />
         </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)]/40 to-transparent" />
