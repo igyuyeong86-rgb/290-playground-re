@@ -83,6 +83,13 @@ body {
   border-radius: 4px;
   border: 1px solid;
 }
+.hero-banner-day,
+:root[data-theme="light"] .hero-banner-night {
+  display: none;
+}
+:root[data-theme="light"] .hero-banner-day {
+  display: block;
+}
 .banner-grid {
   background:
     radial-gradient(circle at 70% 30%, rgba(99, 140, 255, 0.35), transparent 50%),
