@@ -1,39 +1,43 @@
-'use client';
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import Projects from "@/components/Projects";
+import Experience from "@/components/Experience";
+import TechStack from "@/components/TechStack";
+import GitHubActivity from "@/components/GitHubActivity";
+import Contact from "@/components/Contact";
+import JsonLd from "@/components/JsonLd";
+import { personJsonLd, websiteJsonLd, PERSON_ID } from "@/lib/seo";
+import { SITE_URL } from "@/lib/site";
+import { profile } from "@/lib/data";
 
-import {useEffect,useMemo,useState} from 'react';
-import PortfolioEditor from './portfolio-editor';
-import {type PortfolioData,categoryLabel,emptyProfile} from './portfolio-types';
-
-const blank:PortfolioData={profile:emptyProfile,posts:[]};
-const nav=[{label:'Home',href:'#home'},{label:'Projects',href:'#projects'},{label:'Study',href:'#study'},{label:'Blog',href:'/blog'}];
-
-export default function Page(){
- const [data,setData]=useState<PortfolioData>(blank),[editor,setEditor]=useState(false),[search,setSearch]=useState(false),[query,setQuery]=useState('');
- const [theme,setTheme]=useState<'dark'|'light'>('dark');
- async function refresh(){const response=await fetch('/api/portfolio');if(!response.ok)throw new Error('내용을 불러오지 못했습니다.');setData(await response.json() as PortfolioData)}
- useEffect(()=>{refresh().catch(()=>{});setTheme(document.documentElement.dataset.theme==='light'?'light':'dark')},[]);
- useEffect(()=>{const onKey=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();setSearch(v=>!v)}if(event.key==='Escape')setSearch(false)};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey)},[]);
- function toggleTheme(){const next=theme==='dark'?'light':'dark';setTheme(next);document.documentElement.dataset.theme=next;try{localStorage.setItem('theme',next)}catch{}}
- const projects=data.posts.filter(p=>p.category==='project');
- const studies=data.posts.filter(p=>p.category==='study');
- const writing=data.posts.filter(p=>p.category==='note');
- const searchItems=useMemo(()=>[...nav.map(item=>({label:item.label,href:item.href,type:'Section'})),...data.posts.map(p=>({label:p.title,href:'/blog/'+p.id,type:categoryLabel[p.category]}))].filter(item=>item.label.toLowerCase().includes(query.toLowerCase())),[data.posts,query]);
- const paragraphs=data.profile.about.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
- return <>
-  <header className="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur"><div className="rail flex h-12 items-center gap-3 px-4 sm:px-6"><a href="#home" className="hidden font-serif text-xl min-[480px]:block">{data.profile.name||'Portfolio'}</a><nav aria-label="주요 메뉴" className="ml-auto flex items-center gap-3 text-[12px] text-muted sm:gap-5 sm:text-[13px]">{nav.map(item=><a key={item.label} href={item.href} className="hover:text-fg">{item.label}</a>)}<button type="button" onClick={()=>setSearch(true)} aria-label="검색" title="검색 (Ctrl+K)" className="grid size-7 place-items-center rounded-full border border-line hover:text-fg sm:size-8">⌕</button><button type="button" onClick={toggleTheme} aria-label="테마 변경" className="grid size-7 place-items-center rounded-full border border-line hover:text-fg sm:size-8">{theme==='dark'?'☼':'☾'}</button><button type="button" onClick={()=>setEditor(true)} className="rounded-md border border-line px-2 py-1 text-[11px] hover:text-fg">관리</button></nav></div></header>
-  <main id="main" className="rail">
-   <section id="home"><div className="relative h-36 overflow-hidden border-b border-line sm:h-44"><picture><source media="(prefers-reduced-motion: reduce)" srcSet="/img/banner-static.png"/><source type="image/webp" srcSet="/img/banner.webp"/><img src="/img/banner.gif" alt="" width="1200" height="300" fetchPriority="high" className="absolute inset-0 size-full object-cover object-center [image-rendering:pixelated]"/></picture><div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)]/35 to-transparent"/></div><div className="flex items-end gap-5 px-6 pb-7"><div aria-hidden="true" className="-mt-10 grid size-24 shrink-0 place-items-center rounded-xl border border-line bg-chip font-serif text-5xl text-fg shadow-lg">{data.profile.name?.trim().charAt(0)||'P'}</div><div className="pb-1"><h1 className="font-serif text-3xl leading-tight sm:text-4xl">{data.profile.name||'Portfolio'}</h1>{data.profile.headline&&<p className="mt-1 font-mono text-[13px] text-muted">{data.profile.headline}</p>}</div></div></section>
-   <div className="stripe"/>
-   <section id="about"><h2 className="section-title">About</h2>{paragraphs.length?<ul className="space-y-4 px-6 py-7 text-[15px] leading-relaxed text-muted">{paragraphs.map((p,i)=><li key={i} className="flex gap-3"><span className="mt-2.5 size-1 shrink-0 rounded-full bg-soft"/><span className="whitespace-pre-wrap">{p}</span></li>)}</ul>:<div className="h-24" aria-hidden="true"/>}</section>
-   <div className="stripe"/>
-   <section id="projects"><h2 className="section-title">Projects</h2><div className="grid gap-4 p-6 sm:grid-cols-2">{projects.length?projects.map((post,index)=><a href={'/blog/'+post.id} key={post.id} data-spot className="spot group flex flex-col rounded-xl border border-line bg-card p-3 hover:bg-[var(--hover)]"><div className="banner-grid relative grid h-36 place-items-center overflow-hidden rounded-lg border border-line"><span className="absolute left-3 top-3 font-mono text-[10px] tracking-widest text-soft">PROJECT {String(index+1).padStart(2,'0')}</span><span className="font-serif text-5xl text-fg/70">{post.title.charAt(0)}</span></div><div className="mt-4 flex items-baseline justify-between px-1"><h3 className="text-[17px] font-semibold">{post.title}</h3><span className="font-mono text-xs text-soft">{new Date(post.created).getFullYear()}</span></div>{post.excerpt&&<p className="mt-2 flex-1 px-1 text-[13px] leading-relaxed text-muted">{post.excerpt}</p>}<span className="mt-4 border-t border-line px-1 pt-3 font-mono text-[11px] text-soft">Case study ↗</span></a>):<div className="col-span-full h-24 rounded-lg border border-dashed border-line" aria-label="프로젝트가 없습니다."/>}</div></section>
-   <div className="stripe"/>
-   <section id="study"><h2 className="section-title">Study</h2><div className="divide-y divide-line">{studies.length?studies.map(post=><a key={post.id} href={'/blog/'+post.id} className="flex items-center justify-between gap-4 px-6 py-4 text-sm hover:bg-[var(--hover)]"><span>{post.title}</span><time dateTime={new Date(post.created).toISOString()} className="shrink-0 font-mono text-xs text-soft">{new Date(post.created).toLocaleDateString('ko-KR')}</time></a>):<div className="h-24" aria-label="스터디 글이 없습니다."/>}</div></section>
-   <div className="stripe"/>
-   <section id="writing"><h2 className="section-title">Latest writing</h2><div className="divide-y divide-line">{writing.slice(0,4).map(post=><a key={post.id} href={'/blog/'+post.id} className="flex items-center justify-between gap-4 px-6 py-4 text-sm hover:bg-[var(--hover)]"><span>{post.title}</span><time dateTime={new Date(post.created).toISOString()} className="shrink-0 font-mono text-xs text-soft">{new Date(post.created).toLocaleDateString('ko-KR')}</time></a>)}<a href="/blog" className="block px-6 py-4 font-mono text-xs text-muted hover:text-fg">All posts →</a></div></section>
-   <p className="border-t border-line px-6 py-5 font-mono text-[11px] text-soft">© {new Date().getFullYear()} {data.profile.name||'Portfolio'}</p>
-  </main>
-  {search&&<div className="fixed inset-0 z-50 grid place-items-start bg-black/65 pt-[15vh] backdrop-blur-sm" onMouseDown={e=>{if(e.target===e.currentTarget)setSearch(false)}}><div role="dialog" aria-modal="true" aria-label="검색" className="mx-auto w-[min(92vw,520px)] overflow-hidden rounded-xl border border-line bg-card shadow-2xl"><input autoFocus aria-label="검색어" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search sections and posts…" className="w-full border-b border-line bg-transparent px-4 py-3 font-mono text-sm text-fg outline-none placeholder:text-soft"/><ul className="max-h-72 overflow-y-auto p-1">{searchItems.map(item=><li key={item.href}><a href={item.href} onClick={()=>setSearch(false)} className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[var(--hover)]">{item.label}<span className="font-mono text-[10px] text-soft">{item.type}</span></a></li>)}{!searchItems.length&&<li className="px-3 py-4 text-sm text-soft">No results</li>}</ul></div></div>}
-  {editor&&<PortfolioEditor data={data} onRefresh={refresh} onClose={()=>setEditor(false)}/>}
- </>;
+export default function Home() {
+  return (
+    <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            websiteJsonLd(),
+            personJsonLd(),
+            { "@type": "ProfilePage", "@id": `${SITE_URL}/#profilepage`, url: SITE_URL, name: profile.name, mainEntity: { "@id": PERSON_ID }, isPartOf: { "@id": `${SITE_URL}/#website` } },
+          ],
+        }}
+      />
+      <main id="main" className="rail">
+        <Hero />
+        <div className="stripe" />
+        <About />
+        <div className="stripe" />
+        <Projects />
+        <div className="stripe" />
+        <Experience />
+        <div className="stripe" />
+        <TechStack />
+        <div className="stripe" />
+        <GitHubActivity />
+        <div className="stripe" />
+        <Contact />
+      </main>
+    </>
+  );
 }

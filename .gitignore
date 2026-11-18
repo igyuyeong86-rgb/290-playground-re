@@ -15,8 +15,10 @@
 
 # next.js
 /.next/
-/.vinext/
 /out/
+
+# production
+/build
 
 # misc
 .DS_Store
@@ -30,36 +32,17 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
 # typescript
+*.tsbuildinfo
 next-env.d.ts
 
-# Maintained Vite plugin and worker sources.
-!/build/
-/build/*
-!/build/connector-preview-plugin.mjs
-!/build/connector-preview-worker.mjs
-!/build/sites-vite-plugin.LICENSE
-!/build/sites-vite-plugin.ts
-!/build/sites-worker.ts
-
-/dist/
-/.wrangler/
-# Checkout-local execution profile and tool state; never publish them.
-/.sites-runtime/
-/.agents/
-/.codex/
-/outputs/
-/work/
-
-*.tsbuildinfo
-
-# Standalone Cloudflare: local secrets, databases and historical metadata
-.dev.vars*
-*.sqlite*
-*.db
-/.openai/
-/work-async-test/
+# local tooling / scratch
+.vscode/
+.idea/
+.netlify/
+.vercel

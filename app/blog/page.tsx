@@ -1,10 +1,51 @@
-'use client';
+import type { Metadata } from "next";
+import Link from "next/link";
+import ArticleShell from "@/components/ArticleShell";
+import JsonLd from "@/components/JsonLd";
+import { posts, readingTime, toISO, firstParagraph } from "@/lib/content";
+import { absoluteUrl } from "@/lib/site";
+import { breadcrumbJsonLd, personRef, plainDescription } from "@/lib/seo";
 
-import {useEffect,useState} from 'react';
-import {type PortfolioData,categoryLabel,emptyProfile} from '../portfolio-types';
+const description = "Notes on engineering: performance, offline-first apps, native tooling and the decisions behind them.";
 
-export default function BlogIndex(){
- const [data,setData]=useState<PortfolioData>({profile:emptyProfile,posts:[]});
- useEffect(()=>{fetch('/api/portfolio').then(async r=>await r.json() as PortfolioData).then(value=>setData(value)).catch(()=>{})},[]);
- return <><header className="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur"><div className="rail flex h-12 items-center justify-between px-6"><a href="/" className="font-serif text-xl">{data.profile.name||'Portfolio'}</a><a href="/" className="text-sm text-muted hover:text-fg">Home</a></div></header><main id="main" className="rail min-h-screen"><div className="border-b border-line px-6 py-3"><a href="/" className="font-mono text-xs text-muted hover:text-fg">← Home</a></div><h1 className="section-title">Writing</h1><div className="divide-y divide-line">{data.posts.map(post=><a key={post.id} href={'/blog/'+post.id} className="group block px-6 py-5 hover:bg-[var(--hover)]"><p className="font-mono text-[11px] text-soft"><time dateTime={new Date(post.created).toISOString()}>{new Date(post.created).toLocaleDateString('ko-KR')}</time> · {categoryLabel[post.category]}</p><h2 className="mt-1.5 font-serif text-2xl group-hover:underline group-hover:underline-offset-4">{post.title}</h2>{post.excerpt&&<p className="mt-2 text-[14px] text-muted">{post.excerpt}</p>}</a>)}</div></main></>;
+export const metadata: Metadata = {
+  title: "Writing",
+  description,
+  alternates: { canonical: absoluteUrl("/blog") },
+  openGraph: { type: "website", title: "Writing", description, url: absoluteUrl("/blog") },
+};
+
+export default function BlogIndex() {
+  return (
+    <ArticleShell back="/" backLabel="Home">
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            name: "Writing",
+            description,
+            url: absoluteUrl("/blog"),
+            author: personRef,
+            blogPost: posts.map((p) => ({ "@type": "BlogPosting", headline: p.title, url: absoluteUrl(`/blog/${p.slug}`), datePublished: toISO(p.date) })),
+          },
+          breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }]),
+        ]}
+      />
+      <h1 className="section-title">Writing</h1>
+      <ul className="divide-y divide-line">
+        {posts.map((p) => (
+          <li key={p.slug}>
+            <Link href={`/blog/${p.slug}`} className="group block px-6 py-5 transition-colors hover:bg-[var(--hover)]">
+              <p className="font-mono text-[11px] text-soft">
+                <time dateTime={toISO(p.date)}>{p.date}</time> · {p.category} · {readingTime(p.blocks)} min read
+              </p>
+              <h2 className="mt-1.5 font-serif text-2xl group-hover:underline group-hover:underline-offset-4">{p.title}</h2>
+              <p className="mt-2 line-clamp-2 text-[14px] text-muted">{plainDescription(firstParagraph(p.blocks), 220)}</p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </ArticleShell>
+  );
 }
