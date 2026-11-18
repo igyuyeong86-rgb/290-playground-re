@@ -11,6 +11,16 @@ import { useEffect, useRef } from "react";
  */
 const PX = 6; // pixel cell size (CSS px)
 const TRAIL_MS = 650;
+const LIGHT_SAGE = [95, 138, 108]; // #5F8A6C
+const LIGHT_OLIVE = [127, 133, 79]; // #7F854F
+
+function particleColor(hue: number, alpha: number, light: boolean) {
+  if (!light) return `hsla(${hue}, 95%, 66%, ${alpha})`;
+
+  const blend = Math.max(0, Math.min(1, (hue - 200) / 70));
+  const rgb = LIGHT_SAGE.map((channel, i) => Math.round(channel + (LIGHT_OLIVE[i] - channel) * blend));
+  return `rgba(${rgb.join(",")}, ${alpha})`;
+}
 
 type Dot = { x: number; y: number; born: number; hue: number };
 type Spark = { x: number; y: number; vx: number; vy: number; born: number; ttl: number; hue: number };
@@ -42,7 +52,6 @@ export default function CursorFx() {
     let raf = 0, running = false, hueShift = 0, lastMove = 0;
 
     const isLight = () => document.documentElement.dataset.theme === "light";
-    const color = (hue: number, a: number) => (isLight() ? `hsla(${hue}, 80%, 42%, ${a})` : `hsla(${hue}, 95%, 66%, ${a})`);
 
     const start = () => { if (!running) { running = true; raf = requestAnimationFrame(frame); } };
 
@@ -123,7 +132,7 @@ export default function CursorFx() {
       for (const d of dots) {
         const life = 1 - (now - d.born) / TRAIL_MS;
         const s = PX * (0.35 + 0.65 * life);
-        ctx!.fillStyle = color(d.hue, Math.pow(life, 1.4) * 0.9);
+        ctx!.fillStyle = particleColor(d.hue, Math.pow(life, 1.4) * 0.9, light);
         ctx!.fillRect(d.x - s / 2, d.y - s / 2, s, s);
       }
 
@@ -133,7 +142,7 @@ export default function CursorFx() {
         if (age > p.ttl) { sparks.splice(i, 1); continue; }
         p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.vx *= 0.985;
         const life = 1 - age / p.ttl, s = Math.max(2, Math.round((PX * 0.7 * life) / 2) * 2);
-        ctx!.fillStyle = color(p.hue, life);
+        ctx!.fillStyle = particleColor(p.hue, life, light);
         ctx!.fillRect(Math.round(p.x / 2) * 2, Math.round(p.y / 2) * 2, s, s);
       }
 
