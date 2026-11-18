@@ -11,8 +11,6 @@ export const profile = {
   email: "igyuyeong86@gmail.com",
   github: "https://github.com/igyuyeong86-rgb",
   githubUser: "igyuyeong86-rgb", // powers the GitHub activity graph
-  linkedin: "https://www.linkedin.com/in/your-handle",
-  x: "https://x.com/your_handle",
   resume: "/resume", // the generated /resume page; point to your own PDF URL if you prefer
   avatar: "/img/avatar.jpg",
   // Optional, used for structured data. Leave empty strings to omit.

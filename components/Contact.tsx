@@ -29,8 +29,6 @@ export default function Contact() {
         </EmailLink>
         <div className="mt-4 flex gap-4 font-mono text-xs">
           <a href={profile.github} target="_blank" rel="noreferrer" className="hover:text-fg">GitHub</a>
-          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="hover:text-fg">LinkedIn</a>
-          <a href={profile.x} target="_blank" rel="noreferrer" className="hover:text-fg">X</a>
         </div>
       </div>
       <p className="border-t border-line px-6 py-5 font-mono text-[11px] text-soft">

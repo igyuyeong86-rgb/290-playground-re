@@ -31,7 +31,6 @@ export default function About() {
             <>
               <a href="#contact" className={btn}>Contact</a>
               <a href={profile.github} target="_blank" rel="noreferrer" className={btn}>GitHub</a>
-              <a href={profile.linkedin} target="_blank" rel="noreferrer" className={btn}>LinkedIn</a>
               <EmailLink className={btn}>Mail</EmailLink>
               <Link href="/resume" className={btn}>Resume</Link>
             </>
