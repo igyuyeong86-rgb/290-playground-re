@@ -47,7 +47,7 @@ checkEntries("blog", blog);
 // lib/data.ts: case-study links and image paths must resolve
 const data = read("lib/data.ts");
 for (const m of data.matchAll(/caseStudy:\s*"\/work\/([\w-]+)"/g)) if (!slugs.work.has(m[1])) fail(`lib/data.ts: caseStudy /work/${m[1]} has no content entry`);
-for (const m of data.matchAll(/(?:image|avatar):\s*"(\/img\/[^"]+)"/g)) if (!existsSync(join(root, "public", m[1]))) fail(`lib/data.ts: missing asset ${m[1]}`);
+for (const m of data.matchAll(/(?:image|avatar|avatarLight):\s*"(\/img\/[^"]+)"/g)) if (!existsSync(join(root, "public", m[1]))) fail(`lib/data.ts: missing asset ${m[1]}`);
 
 if (errors.length) {
   console.error(`✖ content validation failed (${errors.length}):\n` + errors.map((e) => "  - " + e).join("\n"));

@@ -12,7 +12,8 @@ export const profile = {
   github: "https://github.com/igyuyeong86-rgb",
   githubUser: "igyuyeong86-rgb", // powers the GitHub activity graph
   resume: "/resume", // the generated /resume page; point to your own PDF URL if you prefer
-  avatar: "/img/avatar.jpg",
+  avatar: "/img/avatar-dark.webp",
+  avatarLight: "/img/avatar-light.webp",
   // Optional, used for structured data. Leave empty strings to omit.
   region: "",
   country: "",

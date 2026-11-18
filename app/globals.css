@@ -83,11 +83,11 @@ body {
   border-radius: 4px;
   border: 1px solid;
 }
-.hero-banner-day,
-:root[data-theme="light"] .hero-banner-night {
+.theme-light-only,
+:root[data-theme="light"] .theme-dark-only {
   display: none;
 }
-:root[data-theme="light"] .hero-banner-day {
+:root[data-theme="light"] .theme-light-only {
   display: block;
 }
 .banner-grid {
