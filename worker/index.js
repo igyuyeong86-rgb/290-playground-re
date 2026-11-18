@@ -1,3 +1,5 @@
+import { kakaoRoute, sendDaily } from "./kakao.js";
+
 const PREFIX = "/secret/mobab/hidden";
 const HOME = "https://dorm.kku.ac.kr/main.do?dormType=M";
 const SOURCE = "https://dorm.kku.ac.kr/weekly_diet.do?menuSeq=43860&bachelor=MO";
@@ -66,6 +68,10 @@ async function getWeeks(force = false) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith(`${PREFIX}/api/`) && url.pathname !== `${PREFIX}/api/menu`) {
+      const response = await kakaoRoute(request, env, getWeeks);
+      return response ?? new Response("Not Found", { status: 404 });
+    }
     if (url.pathname === `${PREFIX}/api/menu`) {
       try {
         const data = await getWeeks(url.searchParams.has("refresh"));
@@ -75,5 +81,8 @@ export default {
       }
     }
     return env.ASSETS.fetch(request);
+  },
+  async scheduled(_event, env) {
+    await sendDaily(env, getWeeks);
   },
 };

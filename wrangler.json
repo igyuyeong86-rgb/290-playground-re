@@ -4,6 +4,8 @@
   "main": "./worker/index.js",
   "compatibility_date": "2026-05-15",
   "workers_dev": true,
+  "triggers": { "crons": ["0 0 * * *"] },
+  "kv_namespaces": [{ "binding": "MOBAB_KV", "id": "048d8d5980064036a17cbff33ef3596b" }],
   "assets": {
     "directory": "./out",
     "binding": "ASSETS",
@@ -11,3 +13,4 @@
     "not_found_handling": "404-page"
   }
 }
+
