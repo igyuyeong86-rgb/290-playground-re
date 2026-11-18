@@ -9,12 +9,12 @@ export const profile = {
   location: "충주, 건국대학교 글로컬캠퍼스",
   timezone: "UTC",
   email: "igyuyeong86@gmail.com",
-  github: "https://github.com/octocat",
-  githubUser: "octocat", // powers the GitHub activity graph
+  github: "https://github.com/igyuyeong86-rgb",
+  githubUser: "igyuyeong86-rgb", // powers the GitHub activity graph
   linkedin: "https://www.linkedin.com/in/your-handle",
   x: "https://x.com/your_handle",
   resume: "/resume", // the generated /resume page; point to your own PDF URL if you prefer
-  avatar: "/img/avatar.jpeg",
+  avatar: "/img/avatar.jpg",
   // Optional, used for structured data. Leave empty strings to omit.
   region: "",
   country: "",
