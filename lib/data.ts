@@ -3,8 +3,8 @@
  * Case studies and blog posts live in content/work.json and content/blog.json.
  */
 export const profile = {
-  name: "Alex Morgan",
-  short: "Alex",
+  name: "twoninezero",
+  short: "290",
   role: "Full Stack Developer",
   location: "Anywhere, Earth",
   timezone: "UTC",
