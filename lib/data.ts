@@ -17,15 +17,13 @@ export const profile = {
   region: "",
   country: "",
   about: [
-    "Hi, I'm Alex, a full-stack developer who enjoys building products that pair clean interfaces with solid, scalable backends.",
-    "I work mostly with TypeScript, React, Next.js, Node.js and PostgreSQL, and I like taking an idea from a rough sketch all the way to a deployed product.",
-    "This is sample content from the quietfolio template. Edit lib/data.ts, content/work.json and content/blog.json to make it yours.",
+    "이것저것 배워보려 하고 있는 290입니다.",
+    "재미있어 보이는건 다 해보는 중입니다"
   ],
   snapshot: [
-    "Building full-stack products.",
-    "Designing clean, fast interfaces.",
-    "Writing about engineering.",
-    "Always learning something new.",
+    "CS 스터디",
+    "컴퓨터 툴 공부",
+    "파이썬 언어 공부"
   ],
 };
 
