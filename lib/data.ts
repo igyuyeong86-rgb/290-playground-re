@@ -116,5 +116,5 @@ export const experience = [
 
 export const stackGroups: Record<string, string[]> = {
   Languages: ["Python"],
-  Tools: ["Git", "Figma", "Playwright", "Vitest"],
+  Tools: ["Git", "kali linux", "Burp Suite", "wireshark"],
 };
