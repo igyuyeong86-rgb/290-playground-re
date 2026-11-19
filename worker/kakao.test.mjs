@@ -5,7 +5,9 @@ const longDay = { date: "2026-11-18", meals: { 아침: "가".repeat(500), 점심
 const messages = formatDay(longDay, "오늘");
 assert(messages.length > 1);
 assert(messages.every((message) => message.length <= 200));
-assert(messages.join(" ").includes("저녁: 미등록"));
+assert(messages.join(" ").includes("🌙 저녁\n미등록"));
+const readable = formatDay({ date: "2026-11-19", meals: { 아침: "보리밥\n두부김치국", 점심: "찰밥\n장각한방탕", 저녁: "일식카레라이스" } }, "오늘");
+assert.deepEqual(readable, ["🍽 오늘 식단 · 11/19 (목)\n\n🌅 아침\n보리밥 · 두부김치국\n\n🍱 점심\n찰밥 · 장각한방탕\n\n🌙 저녁\n일식카레라이스"]);
 
 const route = await kakaoRoute(new Request("https://playgroundandsandboxof290.xyz/secret/mobab/hidden/api/connect", {
   method: "POST", headers: { origin: "https://evil.example", "content-type": "application/json" }, body: JSON.stringify({ adminToken: "test" }),
@@ -48,8 +50,8 @@ try {
   const first = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"));
   assert.equal(first.sent, 2);
   assert.equal(outgoing.length, 2);
-  assert(outgoing[0].startsWith("오늘"));
-  assert(outgoing[1].startsWith("내일"));
+  assert(outgoing[0].startsWith("🍽 오늘 식단"));
+  assert(outgoing[1].startsWith("🍽 내일 식단"));
   const preview = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"), false);
   assert.equal(preview.sent, 2);
   assert.equal(outgoing.length, 4);

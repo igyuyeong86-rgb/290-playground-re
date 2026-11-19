@@ -70,7 +70,9 @@ function seoulDate(offset = 0, now = new Date()) {
   return new Date(Date.UTC(read("year"), read("month") - 1, read("day") + offset)).toISOString().slice(0, 10);
 }
 export function formatDay(day, label) {
-  const heading = `${label} (${day.date.slice(5).replace("-", "/")})`;
+  const weekday = ["일", "월", "화", "수", "목", "금", "토"][new Date(`${day.date}T00:00:00Z`).getUTCDay()];
+  const heading = `🍽 ${label} 식단 · ${day.date.slice(5).replace("-", "/")} (${weekday})`;
+  const icons = { 아침: "🌅", 점심: "🍱", 저녁: "🌙" };
   const lines = [];
   for (const meal of ["아침", "점심", "저녁"]) {
     const items = (day.meals[meal] || "").split(/\n+/).map((item) => item.trim()).filter(Boolean).filter((item) => !/kcal/i.test(item));
@@ -78,21 +80,23 @@ export function formatDay(day, label) {
     let remaining = content;
     let first = true;
     while (remaining.length) {
-      const prefix = `${meal}${first ? "" : " (계속)"}: `;
-      const capacity = 200 - heading.length - " (계속)\n".length - prefix.length;
+      const prefix = `${icons[meal]} ${meal}${first ? "" : " (계속)"}\n`;
+      const capacity = 200 - `${heading} (계속)\n\n`.length - prefix.length;
       if (capacity < 1) throw new Error("메시지 제목이 너무 깁니다.");
-      const part = remaining.slice(0, capacity);
+      const delimiter = remaining.lastIndexOf(" · ", capacity);
+      const splitAt = remaining.length > capacity && delimiter > 0 ? delimiter : capacity;
+      const part = remaining.slice(0, splitAt);
       lines.push(prefix + part);
-      remaining = remaining.slice(part.length);
+      remaining = remaining.slice(splitAt).replace(/^ · /, "");
       first = false;
     }
   }
   const messages = [];
   let chunk = heading;
   for (const line of lines) {
-    if (chunk.length + 1 + line.length <= 200) { chunk += `\n${line}`; continue; }
+    if (chunk.length + 2 + line.length <= 200) { chunk += `\n\n${line}`; continue; }
     messages.push(chunk);
-    chunk = `${heading} (계속)\n${line}`;
+    chunk = `${heading} (계속)\n\n${line}`;
   }
   messages.push(chunk);
   return messages;
