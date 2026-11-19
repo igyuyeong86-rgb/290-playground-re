@@ -113,7 +113,7 @@ async function sendMessage(accessToken, text) {
     throw new Error(`카카오톡 메시지 발송 실패 (${code}): ${detail}`);
   }
 }
-export async function sendDaily(env, getWeeks, now = new Date()) {
+export async function sendDaily(env, getWeeks, now = new Date(), recordDelivery = true) {
   required(env);
   const today = seoulDate(0, now), tomorrow = seoulDate(1, now);
   const stored = await env.MOBAB_KV.get("kakao-refresh");
@@ -135,9 +135,9 @@ export async function sendDaily(env, getWeeks, now = new Date()) {
     const messages = formatDay(day, label);
     for (const [index, message] of messages.entries()) {
       const key = `sent:${today}:${label}:${index}`;
-      if (await env.MOBAB_KV.get(key)) continue;
+      if (recordDelivery && await env.MOBAB_KV.get(key)) continue;
       await sendMessage(tokens.access_token, message);
-      await env.MOBAB_KV.put(key, "1", { expirationTtl: 3 * 86400 });
+      if (recordDelivery) await env.MOBAB_KV.put(key, "1", { expirationTtl: 3 * 86400 });
       sent++;
     }
   }
@@ -176,7 +176,7 @@ export async function kakaoRoute(request, env, getWeeks) {
       if (request.headers.get("origin") !== PUBLIC_ORIGIN) return new Response("Forbidden", { status: 403 });
       const { adminToken } = await request.json();
       if (adminToken !== env.MOBAB_ADMIN_TOKEN) return new Response("Unauthorized", { status: 401 });
-      return Response.json(await sendDaily(env, getWeeks), { headers: { "cache-control": "no-store" } });
+      return Response.json(await sendDaily(env, getWeeks, new Date(), false), { headers: { "cache-control": "no-store" } });
     } catch (error) { return Response.json({ error: error.message }, { status: 503 }); }
   }
   return null;

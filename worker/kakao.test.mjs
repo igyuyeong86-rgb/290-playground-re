@@ -50,8 +50,19 @@ try {
   assert.equal(outgoing.length, 2);
   assert(outgoing[0].startsWith("오늘"));
   assert(outgoing[1].startsWith("내일"));
+  const preview = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"), false);
+  assert.equal(preview.sent, 2);
+  assert.equal(outgoing.length, 4);
   const second = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"));
   assert.equal(second.sent, 0);
+  kv.delete("sent:2026-11-18:오늘:0");
+  kv.delete("sent:2026-11-18:내일:0");
+  const freshTest = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"), false);
+  assert.equal(freshTest.sent, 2);
+  assert(!kv.has("sent:2026-11-18:오늘:0"));
+  assert(!kv.has("sent:2026-11-18:내일:0"));
+  const scheduled = await sendDaily(env, getWeeks, new Date("2026-11-18T00:00:00Z"));
+  assert.equal(scheduled.sent, 2);
   kv.delete("sent:2026-11-18:오늘:0");
   globalThis.fetch = async (url) => String(url).includes("oauth/token")
     ? Response.json({ access_token: "access" })
