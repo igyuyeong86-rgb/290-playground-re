@@ -115,7 +115,7 @@ export const experience = [
 ];
 
 export const stackGroups: Record<string, string[]> = {
-  Languages: ["TypeScript", "JavaScript", "Python", "SQL"],
+  Languages: ["Python"],
   Frontend: ["React", "Next.js", "Tailwind CSS", "Framer Motion"],
   Backend: ["Node.js", "PostgreSQL", "Redis", "GraphQL", "REST"],
   "DevOps & Cloud": ["Docker", "GitHub Actions", "Vercel", "Netlify"],
