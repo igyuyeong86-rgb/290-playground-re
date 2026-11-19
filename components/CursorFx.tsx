@@ -11,14 +11,14 @@ import { useEffect, useRef } from "react";
  */
 const PX = 6; // pixel cell size (CSS px)
 const TRAIL_MS = 650;
-const LIGHT_SAGE = [95, 138, 108]; // #5F8A6C
-const LIGHT_OLIVE = [127, 133, 79]; // #7F854F
+const LIGHT_CORAL = [223, 88, 72]; // #DF5848
+const LIGHT_GOLD = [198, 139, 22]; // #C68B16
 
 function particleColor(hue: number, alpha: number, light: boolean) {
   if (!light) return `hsla(${hue}, 95%, 66%, ${alpha})`;
 
   const blend = Math.max(0, Math.min(1, (hue - 200) / 70));
-  const rgb = LIGHT_SAGE.map((channel, i) => Math.round(channel + (LIGHT_OLIVE[i] - channel) * blend));
+  const rgb = LIGHT_CORAL.map((channel, i) => Math.round(channel + (LIGHT_GOLD[i] - channel) * blend));
   return `rgba(${rgb.join(",")}, ${alpha})`;
 }
 
