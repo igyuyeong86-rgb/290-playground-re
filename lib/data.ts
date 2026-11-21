@@ -45,7 +45,19 @@ export const projects: {
   repo?: string;
   /** Path of a case study in content/work.json, e.g. "/work/northwind-dashboard". */
   caseStudy?: string;
-}[] = [];
+}[] = [
+  {
+    title: "Northwind Dashboard (샘플)",
+    image: "/img/projects/northwind-dashboard.jpg",
+    year: "2026",
+    category: "test",
+    featured: true,
+    status: "WIP",
+    description: "프로젝트 카드와 상세 글을 연결하는 방법을 보여주는 예시입니다.",
+    tags: ["React", "TypeScript", "Node.js"],
+    caseStudy: "/work/northwind-dashboard",
+  },
+];
 
 export const experience = [
   {
