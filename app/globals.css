@@ -117,7 +117,7 @@ body {
 }
 .spot:hover::after { opacity: 1; }
 :root[data-theme="light"] .spot::after {
-  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(60, 90, 220, 0.10), transparent 65%);
+  display: none;
 }
 @media (pointer: coarse), (prefers-reduced-motion: reduce) { .spot::after { display: none; } }
 

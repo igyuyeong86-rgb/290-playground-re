@@ -28,9 +28,9 @@ export const profile = {
   ],
 };
 
-export type Category = "Web" | "Mobile" | "Desktop" | "Tooling";
+export type Category = "test" | "test2";
 
-export const projectFilters: ("All" | Category)[] = ["All", "Web", "Mobile", "Desktop", "Tooling"];
+export const projectFilters: ("All" | Category)[] = ["All", "test", "test2"];
 
 export const projects: {
   title: string;

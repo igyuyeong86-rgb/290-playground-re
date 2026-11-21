@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
  *  - pixel trail: snapped squares that shrink/fade behind the cursor
  *  - focus reticle: camera-style corner brackets that lerp to the cursor and snap to interactive elements
  *  - click burst: pixel sparks
- *  - soft spotlight glow
+ *  - soft spotlight glow in dark mode
  * Also feeds --mx/--my to [data-spot] elements for the card glow.
  */
 const PX = 6; // pixel cell size (CSS px)
@@ -120,9 +120,9 @@ export default function CursorFx() {
       ctx!.globalCompositeOperation = light ? "source-over" : "lighter";
 
       // spotlight
-      if (mouse.inside) {
+      if (mouse.inside && !light) {
         const g = ctx!.createRadialGradient(ring.x, ring.y, 0, ring.x, ring.y, 190);
-        g.addColorStop(0, light ? "rgba(60,90,220,0.07)" : "rgba(110,140,255,0.10)");
+        g.addColorStop(0, "rgba(110,140,255,0.10)");
         g.addColorStop(1, "rgba(0,0,0,0)");
         ctx!.fillStyle = g; ctx!.fillRect(ring.x - 190, ring.y - 190, 380, 380);
       }
