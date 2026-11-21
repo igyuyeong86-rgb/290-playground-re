@@ -61,16 +61,10 @@ export const projects: {
 
 export const experience = [
   {
-    role: "Senior Full Stack Developer",
-    company: "Acme Corp",
-    period: "2023 – Present",
-    body: "Sample entry. Lead a small team building customer-facing web products, from architecture and APIs to CI/CD and performance budgets.",
-  },
-  {
-    role: "Full Stack Developer",
-    company: "Globex",
-    period: "2020 – 2023",
-    body: "Sample entry. Built and shipped internal tools and a public dashboard used by thousands of people every week.",
+    role: "충북 정보보호 해커톤 대상 수상",
+    company: "허니 하이라이트 콤보 팀",
+    period: "2026.11.21",
+    body: "충북 정보보호 해커톤 대회에 '허니 하이라이트 콤보'팀으로 참여하여 대상을 수상하였습니다.",
   },
 ];
 
