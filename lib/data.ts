@@ -45,59 +45,7 @@ export const projects: {
   repo?: string;
   /** Path of a case study in content/work.json, e.g. "/work/northwind-dashboard". */
   caseStudy?: string;
-}[] = [
-  {
-    title: "Northwind Dashboard",
-    image: "/img/projects/northwind-dashboard.jpg",
-    year: "2026",
-    category: "Web",
-    featured: true,
-    status: "LIVE",
-    description:
-      "A sample analytics dashboard: real-time charts, role-based access and CSV export, built as a fast single-page app on a typed API.",
-    tags: ["React", "TypeScript", "Node.js", "PostgreSQL"],
-    live: "https://example.com",
-    repo: "https://github.com/octocat/Hello-World",
-    caseStudy: "/work/northwind-dashboard",
-  },
-  {
-    title: "Pocket Budget",
-    image: "/img/projects/pocket-budget.jpg",
-    year: "2025",
-    category: "Mobile",
-    featured: true,
-    status: "LIVE",
-    description:
-      "A sample personal-finance app that works offline first: log spending in seconds and sync when a connection returns.",
-    tags: ["React Native", "SQLite", "TypeScript"],
-    live: "https://example.com",
-    caseStudy: "/work/pocket-budget",
-  },
-  {
-    title: "Plainfile CLI",
-    image: "/img/projects/plainfile-cli.jpg",
-    year: "2025",
-    category: "Tooling",
-    featured: true,
-    status: "LIVE",
-    description:
-      "A sample command-line tool that keeps folders of plain text files in sync, with conflict resolution and a dry-run mode.",
-    tags: ["Node.js", "CLI", "TypeScript"],
-    repo: "https://github.com/octocat/Hello-World",
-    caseStudy: "/work/plainfile-cli",
-  },
-  {
-    title: "Orbit Notes",
-    image: "/img/projects/orbit-notes.jpg",
-    year: "2026",
-    category: "Desktop",
-    status: "WIP",
-    description:
-      "A sample desktop notes app with local-first storage and instant search. This entry has no case study, which is fine.",
-    tags: ["Electron", "React", "SQLite"],
-    repo: "https://github.com/octocat/Hello-World",
-  },
-];
+}[] = [];
 
 export const experience = [
   {
