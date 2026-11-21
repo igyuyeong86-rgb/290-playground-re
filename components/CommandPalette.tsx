@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { openMail } from "@/lib/mail";
 import { withBase } from "@/lib/paths";
 import { profile } from "@/lib/data";
-import { caseStudies, posts, splitTitle } from "@/lib/content";
+export type SearchItem = { label: string; hint: string; href: string };
 
-type Item = { label: string; hint: string; href: string };
-
-export default function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) {
+export default function CommandPalette({ open, setOpen, articles }: {
+  open: boolean; setOpen: (v: boolean) => void; articles: SearchItem[];
+}) {
   const [q, setQ] = useState("");
   const router = useRouter();
 
@@ -29,7 +29,7 @@ export default function CommandPalette({ open, setOpen }: { open: boolean; setOp
     return () => window.removeEventListener("keydown", onKey);
   }, [open, setOpen]);
 
-  const items: Item[] = useMemo(
+  const items: SearchItem[] = useMemo(
     () => [
       { label: "Home", hint: "Section", href: "/" },
       { label: "Projects", hint: "Section", href: "/#projects" },
@@ -39,12 +39,11 @@ export default function CommandPalette({ open, setOpen }: { open: boolean; setOp
       { label: "GitHub", hint: "Link", href: profile.github },
       { label: "Email", hint: "Link", href: `mailto:${profile.email}` },
       { label: "Resume", hint: "Page", href: "/resume" },
-      ...caseStudies.map((c) => ({ label: splitTitle(c.title).name, hint: "Case study", href: `/work/${c.slug}` })),
-      ...posts.map((p) => ({ label: p.title, hint: "Post", href: `/blog/${p.slug}` })),
+      ...articles,
     ],
-    []
+    [articles]
   );
-  const go = (i: Item) => {
+  const go = (i: SearchItem) => {
     setOpen(false);
     if (i.href.startsWith("mailto:")) openMail();
     else if (i.href.startsWith("http")) window.open(i.href, "_blank", "noopener");

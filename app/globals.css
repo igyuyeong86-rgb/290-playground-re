@@ -99,6 +99,24 @@ body {
     var(--card);
 }
 @keyframes blink { 50% { opacity: 0.25; } }
+.article-body > * + * { @apply mt-4; }
+.article-body h1, .article-body h2 { @apply mt-10 scroll-mt-16 font-serif text-2xl text-fg; }
+.article-body h3, .article-body h4, .article-body h5, .article-body h6 {
+  @apply mt-7 text-base font-semibold text-fg;
+}
+.article-body ul { @apply list-disc; }
+.article-body ol { @apply list-decimal; }
+.article-body :is(ul, ol) { @apply space-y-2.5 pl-5 marker:text-soft; }
+.article-body li > :is(ul, ol) { @apply mt-2; }
+.article-body a { @apply underline underline-offset-4 hover:text-fg; }
+.article-body strong { @apply font-semibold text-fg; }
+.article-body blockquote { @apply rounded-r-md border-l-2 border-fg/40 bg-card px-4 py-3 text-sm italic; }
+.article-body :not(pre) > code { @apply rounded bg-chip px-1 py-0.5 font-mono text-[0.9em] text-fg; }
+.article-body pre { @apply overflow-x-auto rounded-lg border border-line bg-card p-4 font-mono text-[12.5px] leading-relaxed text-fg; }
+.article-body table { @apply w-full border-collapse text-left text-[13px]; }
+.article-body tr { @apply border-b border-line; }
+.article-body th { @apply px-3 py-2 font-mono text-[11px] font-normal uppercase tracking-wider text-soft; }
+.article-body td { @apply px-3 py-2; }
 .rec-dot { animation: blink 1.2s infinite; }
 
 :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; border-radius: 4px; }

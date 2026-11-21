@@ -11,9 +11,9 @@
 | Developer Snapshot | `lib/data.ts` | `profile.snapshot`. 요즘 공부하는 것, 관심 분야, 진행 중인 작업을 한 줄씩 입력합니다. |
 | GitHub 링크와 활동 그래프 | `lib/data.ts` | `profile.github`는 전체 주소, `profile.githubUser`는 계정 아이디입니다. |
 | 프로젝트 카드와 필터 | `lib/data.ts` | `projects`에서 카드를 수정합니다. 필터를 추가하려면 `Category`와 `projectFilters`도 맞춥니다. |
-| 프로젝트 상세 글 | `content/work.json` | 제목, 날짜, 태그, 표지 `cover`, 본문 `blocks`를 수정합니다. |
+| 프로젝트 상세 글 | `content/work/*.md` | 파일의 상단 메타데이터와 Markdown 본문을 수정합니다. |
 | 경력과 기술 스택 | `lib/data.ts` | `experience`, `stackGroups` |
-| 블로그 글 | `content/blog.json` | 글 항목을 추가하거나 수정합니다. |
+| 블로그 글 | `content/blog/*.md` | 글마다 Markdown 파일을 하나씩 추가하거나 수정합니다. |
 | 이력서 페이지와 PDF | `lib/data.ts`, `app/resume/page.tsx`, `public/resume.pdf` | 데이터는 `lib/data.ts`, 페이지 구성은 `page.tsx`에서 수정합니다. 다운로드용 PDF는 별도로 교체합니다. |
 | 홈 섹션 순서 | `app/page.tsx` | `<About />`, `<Projects />` 등 섹션 컴포넌트의 순서를 바꿉니다. |
 | 상단 메뉴와 검색 메뉴 | `components/Navbar.tsx`, `components/CommandPalette.tsx` | 메뉴 문구와 링크를 수정합니다. |
@@ -37,32 +37,35 @@
 
 ### 블로그 글
 
-`content/blog.json`은 글 목록입니다. 기존 항목 하나를 복사하거나 아래 예시를 배열 안에 추가하세요. 앞뒤 항목은 쉼표로 구분하고, 배열 마지막 항목 뒤에는 쉼표를 넣지 않습니다.
+아래 내용을 `content/blog/first-study-note.md`로 저장하면 블로그 목록과 `/blog/first-study-note/`에서 확인할 수 있습니다.
 
-```json
-{
-  "slug": "first-study-note",
-  "title": "첫 번째 공부 기록",
-  "date": "2026-11-18",
-  "category": "Study",
-  "blocks": [
-    { "t": "p", "x": "오늘 공부한 내용을 정리했습니다." },
-    { "t": "h2", "x": "배운 것" },
-    { "t": "ul", "x": ["첫 번째 내용", "두 번째 내용"] }
-  ]
-}
+```markdown
+---
+title: "첫 번째 공부 기록"
+date: "2026-11-18"
+category: "Study"
+---
+
+오늘 공부한 내용을 정리했습니다.
+
+## 배운 것
+
+- 첫 번째 내용
+- 두 번째 내용
 ```
 
-- `slug`에는 소문자 영문, 숫자, 하이픈을 쓰고 같은 목록에서 중복되지 않게 합니다. 위 글의 주소는 `/blog/first-study-note/`입니다. 게시 후 `slug`를 바꾸면 기존 주소가 깨질 수 있습니다.
-- 본문은 `blocks`에 순서대로 넣습니다. `p`는 문단, `h2`·`h3`는 제목, `ul`·`ol`은 목록, `quote`는 인용, `code`는 코드, `img`는 이미지, `table`은 표입니다. 문단 안에는 `**굵게**`와 `[링크 문구](주소)` 같은 인라인 문법을 쓸 수 있습니다.
-- 이미지 블록 예시: `{ "t": "img", "x": "/img/my-image.webp", "alt": "이미지 설명" }`.
+- `---` 두 줄 사이에 `title`, `date`, `category`를 적고 그 아래에 Markdown 본문을 씁니다.
+- 파일명에서 `.md`를 뺀 부분이 `slug`입니다. 파일명은 소문자 영문, 숫자, 하이픈을 사용하세요. 게시 후 이름을 바꾸면 글 주소도 바뀝니다.
+- 제목, 목록, 링크, 인용, 코드 블록, 표를 Markdown 문법으로 작성할 수 있습니다. 이미지 파일을 `public/img/`에 넣으면 본문에서 `![이미지 설명](/img/my-image.webp)`처럼 참조할 수 있습니다.
+- 새 파일을 추가한 뒤 개발 서버에 바로 표시되지 않으면 `npm run dev`를 다시 시작합니다. 배포할 때는 빌드가 폴더의 `.md` 파일을 자동으로 읽습니다.
 
 ### 프로젝트
 
 1. 표지 이미지를 `public/img/projects/`에 넣습니다.
 2. `lib/data.ts`의 `projects`에 카드를 추가합니다. `image`, `title`, `year`, `category`, `status`, `description`, `tags`를 채웁니다. `live`와 `repo`에는 공개 사이트와 코드 주소를 선택적으로 넣습니다.
-3. 상세 글이 필요하면 `content/work.json`에 글을 추가합니다. 블로그 형식에 `tags`와 `cover`를 더한 구조입니다. 상세 글의 `slug`가 `my-project`이면 카드에 `caseStudy: "/work/my-project"`를 넣습니다.
-4. 프로젝트를 지울 때는 홈 카드와 상세 글 사이의 `caseStudy` 링크도 확인합니다.
+3. 상세 글이 필요하면 `content/work/my-project.md`를 만듭니다. 글의 주소는 `/work/my-project/`입니다. 블로그와 같은 헤더에 `cover: "/img/projects/my-project.jpg"`와 `tags: ["React", "TypeScript"]`를 추가합니다. [샘플 상세 글](content/work/northwind-dashboard.md)을 복사하면 편합니다.
+4. 홈 카드에 `caseStudy: "/work/my-project"`를 넣어 상세 글과 연결합니다. Markdown 파일을 추가하면 상세 페이지는 자동으로 생성되며, 홈 카드는 `lib/data.ts`에서 별도로 관리합니다.
+5. 프로젝트를 지울 때는 홈 카드와 상세 글 사이의 `caseStudy` 링크도 확인합니다.
 
 ### 이력서 갱신
 
@@ -104,7 +107,7 @@ node scripts/build-for-workers.mjs
 
 | 증상 | 확인할 곳 |
 | --- | --- |
-| JSON 문법 오류 | 큰따옴표, 항목 사이 쉼표, 마지막 항목 뒤 쉼표를 확인합니다. `npm run validate`를 다시 실행합니다. |
+| Markdown 메타데이터 오류 | 맨 위의 `---` 두 줄과 필수 항목, 따옴표, 들여쓰기를 확인하고 `npm run validate`를 다시 실행합니다. |
 | 이미지가 안 뜸 | `public` 아래에 파일이 실제로 있는지, 경로와 확장자·대소문자가 일치하는지, Git에 추가했는지 확인합니다. |
 | 글을 추가했는데 404 | `slug`와 주소가 맞는지 확인합니다. 프로젝트 글이라면 카드의 `caseStudy`도 확인합니다. |
 | 배포 실패 | Cloudflare의 해당 커밋에서 **Build**를 눌러 첫 번째 실제 오류를 확인합니다. 로컬 검사에서 같은 오류를 재현한 뒤 수정 커밋을 푸시합니다. |

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { caseStudies, posts, splitTitle } from "@/lib/content";
 import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import Chrome from "@/components/Chrome";
 import CursorFx from "@/components/CursorFx";
@@ -46,6 +47,10 @@ export const viewport: Viewport = {
 const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const articles = [
+    ...caseStudies.map((c) => ({ label: splitTitle(c.title).name, hint: "Case study", href: `/work/${c.slug}` })),
+    ...posts.map((p) => ({ label: p.title, hint: "Post", href: `/blog/${p.slug}` })),
+  ];
   return (
     <html
       lang="en"
@@ -60,7 +65,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-md focus:bg-fg focus:px-3 focus:py-2 focus:text-bg">
           Skip to content
         </a>
-        <Chrome>{children}</Chrome>
+        <Chrome articles={articles}>{children}</Chrome>
         <CursorFx />
       </body>
     </html>

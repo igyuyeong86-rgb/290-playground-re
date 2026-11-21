@@ -1,56 +1,71 @@
 #!/usr/bin/env node
-// Validates content/*.json and asset/link references. Runs in CI (`npm run validate`).
-import { readFileSync, existsSync } from "node:fs";
+// Validates Markdown metadata, asset references and internal links in CI.
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readContent } from "../lib/read-content.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const errors = [];
-const fail = (m) => errors.push(m);
-const read = (p) => readFileSync(join(root, p), "utf8");
+const fail = (message) => errors.push(message);
 
-const work = JSON.parse(read("content/work.json"));
-const blog = JSON.parse(read("content/blog.json"));
-const BLOCKS = new Set(["h2", "h3", "p", "ul", "ol", "quote", "code", "img", "table"]);
+function load(kind) {
+  try {
+    return readContent(root, kind);
+  } catch (error) {
+    fail(error.message);
+    return [];
+  }
+}
+
+const work = load("work");
+const blog = load("blog");
 const slugs = { work: new Set(work.map((w) => w.slug)), blog: new Set(blog.map((b) => b.slug)) };
 
-function checkEntries(kind, list, extra) {
-  const seen = new Set();
-  for (const e of list) {
-    const id = `${kind}/${e.slug}`;
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(e.slug ?? "")) fail(`${id}: invalid slug`);
-    if (seen.has(e.slug)) fail(`${id}: duplicate slug`);
-    seen.add(e.slug);
-    if (!e.title) fail(`${id}: missing title`);
-    if (Number.isNaN(Date.parse(`${e.date} UTC`))) fail(`${id}: unparseable date "${e.date}"`);
-    if (!Array.isArray(e.blocks) || e.blocks.length === 0) fail(`${id}: no blocks`);
-    extra?.(e, id);
-    for (const [i, b] of (e.blocks ?? []).entries()) {
-      if (!BLOCKS.has(b.t)) fail(`${id}: block ${i} has unknown type "${b.t}"`);
-      const text = JSON.stringify(b.x);
-      if (!b.x || text === "[]" || text === '""') fail(`${id}: block ${i} (${b.t}) is empty`);
-      for (const m of text.matchAll(/\]\((\/(?:work|blog)\/[\w-]+)\)/g)) {
-        const [, k, s] = m[1].split("/");
-        if (!slugs[k]?.has(s)) fail(`${id}: broken internal link ${m[1]}`);
+function publicAsset(path) {
+  if (!path.startsWith("/") || path.startsWith("//")) return false;
+  const local = new URL(path, "https://site.invalid");
+  const file = join(root, "public", decodeURIComponent(local.pathname));
+  return existsSync(file) && statSync(file).isFile();
+}
+
+function* nodes(node) {
+  yield node;
+  for (const child of node.children ?? []) yield* nodes(child);
+}
+
+function checkEntries(kind, articles) {
+  for (const article of articles) {
+    const id = `content/${kind}/${article.slug}.md`;
+    if (kind === "work" && !publicAsset(article.cover)) fail(`${id}: cover missing on disk (${article.cover})`);
+    const elements = [...nodes(article.tree)];
+    const definitions = new Map(elements.filter((node) => node.type === "definition").map((node) => [node.identifier, node.url]));
+    for (const node of elements) {
+      const url = node.url ?? definitions.get(node.identifier);
+      if (!url) continue;
+      if ((node.type === "image" || node.type === "imageReference") && url.startsWith("/") && !url.startsWith("//")) {
+        if (!publicAsset(url)) fail(`${id}: image missing on disk (${url})`);
       }
+      if (node.type !== "link" && node.type !== "linkReference") continue;
+      const match = /^\/(work|blog)\/([^/?#]+)\/?(?:[?#].*)?$/.exec(url);
+      if (match && !slugs[match[1]].has(match[2])) fail(`${id}: broken internal link ${url}`);
     }
   }
 }
 
-checkEntries("work", work, (e, id) => {
-  if (!e.cover || !existsSync(join(root, "public", e.cover))) fail(`${id}: cover missing on disk (${e.cover})`);
-  if (!e.category) fail(`${id}: missing category`);
-  if (!Array.isArray(e.tags)) fail(`${id}: tags must be an array`);
-});
+checkEntries("work", work);
 checkEntries("blog", blog);
 
-// lib/data.ts: case-study links and image paths must resolve
-const data = read("lib/data.ts");
-for (const m of data.matchAll(/caseStudy:\s*"\/work\/([\w-]+)"/g)) if (!slugs.work.has(m[1])) fail(`lib/data.ts: caseStudy /work/${m[1]} has no content entry`);
-for (const m of data.matchAll(/(?:image|avatar|avatarLight):\s*"(\/img\/[^"]+)"/g)) if (!existsSync(join(root, "public", m[1]))) fail(`lib/data.ts: missing asset ${m[1]}`);
+const data = readFileSync(join(root, "lib/data.ts"), "utf8");
+for (const match of data.matchAll(/caseStudy:\s*"\/work\/([\w-]+)"/g)) {
+  if (!slugs.work.has(match[1])) fail(`lib/data.ts: caseStudy /work/${match[1]} has no Markdown file`);
+}
+for (const match of data.matchAll(/(?:image|avatar|avatarLight):\s*"(\/img\/[^"]+)"/g)) {
+  if (!publicAsset(match[1])) fail(`lib/data.ts: missing asset ${match[1]}`);
+}
 
 if (errors.length) {
-  console.error(`✖ content validation failed (${errors.length}):\n` + errors.map((e) => "  - " + e).join("\n"));
+  console.error("Content validation failed:\n" + errors.map((error) => "  - " + error).join("\n"));
   process.exit(1);
 }
-console.log(`✔ content ok: ${work.length} case studies, ${blog.length} posts`);
+console.log(`Content OK: ${work.length} case studies, ${blog.length} posts`);

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ArticleShell from "@/components/ArticleShell";
 import ArticleBody from "@/components/ArticleBody";
 import JsonLd from "@/components/JsonLd";
-import { posts, getPost, readingTime, toISO, firstParagraph } from "@/lib/content";
+import { posts, getPost, readingTime, toISO } from "@/lib/content";
 import { profile } from "@/lib/data";
 import { absoluteUrl, site } from "@/lib/site";
 import { breadcrumbJsonLd, personRef, plainDescription } from "@/lib/seo";
@@ -15,7 +15,7 @@ export const generateStaticParams = () => posts.map((p) => ({ slug: p.slug }));
 export async function generateMetadata(props: PageProps<"/blog/[slug]">): Promise<Metadata> {
   const p = getPost((await props.params).slug);
   if (!p) return {};
-  const description = plainDescription(firstParagraph(p.blocks));
+  const description = plainDescription(p.summary);
   const url = absoluteUrl(`/blog/${p.slug}`);
   // Static hosts serve the extension-less generated image as octet-stream, which social crawlers reject,
   // so the static export falls back to the site-wide PNG.
@@ -36,7 +36,6 @@ export default async function PostPage(props: PageProps<"/blog/[slug]">) {
   const idx = posts.findIndex((x) => x.slug === p.slug);
   const others = [posts[idx + 1], posts[idx - 1]].filter(Boolean);
   const url = absoluteUrl(`/blog/${p.slug}`);
-  const words = p.blocks.map((b) => (Array.isArray(b.x) ? b.x.flat().join(" ") : b.x)).join(" ").split(/\s+/).length;
 
   return (
     <ArticleShell back="/blog" backLabel="All posts">
@@ -46,11 +45,11 @@ export default async function PostPage(props: PageProps<"/blog/[slug]">) {
             "@context": "https://schema.org",
             "@type": "BlogPosting",
             headline: p.title,
-            description: plainDescription(firstParagraph(p.blocks), 300),
+            description: plainDescription(p.summary, 300),
             datePublished: toISO(p.date),
             dateModified: toISO(p.date),
             articleSection: p.category,
-            wordCount: words,
+            wordCount: p.wordCount,
             inLanguage: "en",
             url,
             mainEntityOfPage: url,
@@ -68,11 +67,11 @@ export default async function PostPage(props: PageProps<"/blog/[slug]">) {
       <article>
         <header className="space-y-3 border-b border-line px-6 py-9">
           <p className="font-mono text-[11px] tracking-widest text-soft">
-            {p.category.toUpperCase()} · <time dateTime={toISO(p.date)}>{p.date.toUpperCase()}</time> · {readingTime(p.blocks)} MIN READ
+            {p.category.toUpperCase()} · <time dateTime={toISO(p.date)}>{p.date.toUpperCase()}</time> · {readingTime(p.wordCount)} MIN READ
           </p>
           <h1 className="font-serif text-3xl leading-tight sm:text-4xl">{p.title}</h1>
         </header>
-        <ArticleBody blocks={p.blocks} />
+        <ArticleBody body={p.body} />
       </article>
       <nav aria-label="More posts" className="border-t border-line px-6 py-6">
         <p className="mb-3 font-mono text-[11px] tracking-widest text-soft">KEEP READING</p>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArticleShell from "@/components/ArticleShell";
 import JsonLd from "@/components/JsonLd";
-import { posts, readingTime, toISO, firstParagraph } from "@/lib/content";
+import { posts, readingTime, toISO } from "@/lib/content";
 import { absoluteUrl } from "@/lib/site";
 import { breadcrumbJsonLd, personRef, plainDescription } from "@/lib/seo";
 
@@ -38,10 +38,10 @@ export default function BlogIndex() {
           <li key={p.slug}>
             <Link href={`/blog/${p.slug}`} className="group block px-6 py-5 transition-colors hover:bg-[var(--hover)]">
               <p className="font-mono text-[11px] text-soft">
-                <time dateTime={toISO(p.date)}>{p.date}</time> · {p.category} · {readingTime(p.blocks)} min read
+                <time dateTime={toISO(p.date)}>{p.date}</time> · {p.category} · {readingTime(p.wordCount)} min read
               </p>
               <h2 className="mt-1.5 font-serif text-2xl group-hover:underline group-hover:underline-offset-4">{p.title}</h2>
-              <p className="mt-2 line-clamp-2 text-[14px] text-muted">{plainDescription(firstParagraph(p.blocks), 220)}</p>
+              <p className="mt-2 line-clamp-2 text-[14px] text-muted">{plainDescription(p.summary, 220)}</p>
             </Link>
           </li>
         ))}

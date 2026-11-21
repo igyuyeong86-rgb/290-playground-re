@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import ArticleShell from "@/components/ArticleShell";
 import ArticleBody from "@/components/ArticleBody";
 import JsonLd from "@/components/JsonLd";
-import { caseStudies, getCaseStudy, splitTitle, toISO, firstParagraph } from "@/lib/content";
+import { caseStudies, getCaseStudy, splitTitle, toISO } from "@/lib/content";
 import { profile, projects } from "@/lib/data";
 import { absoluteUrl, site } from "@/lib/site";
 import { breadcrumbJsonLd, personRef, plainDescription } from "@/lib/seo";
@@ -17,7 +17,7 @@ export async function generateMetadata(props: PageProps<"/work/[slug]">): Promis
   const c = getCaseStudy((await props.params).slug);
   if (!c) return {};
   const { name } = splitTitle(c.title);
-  const description = plainDescription(firstParagraph(c.blocks));
+  const description = plainDescription(c.summary);
   const url = absoluteUrl(`/work/${c.slug}`);
   return {
     title: name,
@@ -49,7 +49,7 @@ export default async function CaseStudyPage(props: PageProps<"/work/[slug]">) {
             "@context": "https://schema.org",
             "@type": "TechArticle",
             headline: c.title,
-            description: plainDescription(firstParagraph(c.blocks), 300),
+            description: plainDescription(c.summary, 300),
             datePublished: toISO(c.date),
             dateModified: toISO(c.date),
             inLanguage: "en",
@@ -86,7 +86,7 @@ export default async function CaseStudyPage(props: PageProps<"/work/[slug]">) {
             </div>
           )}
         </header>
-        <ArticleBody blocks={c.blocks} />
+        <ArticleBody body={c.body} />
       </article>
       <nav aria-label="More case studies" className="border-t border-line px-6 py-6">
         <p className="mb-3 font-mono text-[11px] tracking-widest text-soft">MORE WORK</p>

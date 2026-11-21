@@ -20,7 +20,7 @@ npm run dev        # http://localhost:3000
 
 ## Make it yours (checklist)
 1. **You** — edit `lib/data.ts`: name, role, bio, links, projects, experience, tech stack. Set `profile.githubUser` for the activity graph.
-2. **Writing** — edit `content/work.json` (case studies) and `content/blog.json` (posts). Run `npm run validate` to catch broken links, missing images and duplicate slugs.
+2. **Writing** — put one Markdown file per case study in `content/work/` and per blog post in `content/blog/`. Run `npm run validate` to check metadata, internal links and local images.
 3. **Images** — replace `public/img/avatar.jpeg` and `public/img/projects/*.jpg`. `python3 scripts/make_sample_assets.py` regenerates neutral placeholders.
 4. **Brand assets** — `python3 scripts/make_brand_assets.py "Your Name" "Your Role" "yourdomain.com"` regenerates the favicon, Apple icon and social image from your avatar.
 5. **SEO** — set `NEXT_PUBLIC_SITE_URL` (see `.env.example`) and review `lib/site.ts` (description, keywords, Twitter handle).
@@ -45,7 +45,7 @@ npm run dev        # http://localhost:3000
 | `npm run resume` | Regenerate `public/resume.pdf` |
 
 ## Content format
-Blocks: `h2`, `h3`, `p`, `ul`, `ol`, `quote`, `code`, `img`, `table`. Inline: `**bold**`, `*italic*`, `` `code` ``, `[text](url)`. See the sample posts in `content/blog.json`.
+The filename is the URL slug. `content/blog/my-post.md` becomes `/blog/my-post/`. Start each file with YAML front matter between `---` lines and include `title`, `date` and `category`. Case studies also need `cover` (a path under `public/`, such as `/img/projects/my-project.jpg`) and `tags` (a YAML list). Write the body below the header in Markdown. See [SITE_MAINTENANCE.md](SITE_MAINTENANCE.md) and the sample files.
 
 ## Configuration
 Copy `.env.example`:
@@ -78,7 +78,7 @@ If you change third-party origins (for example the GitHub activity API), update 
 ```
 app/            routes, metadata files (sitemap, robots, manifest, OG images, feeds)
 components/     UI (Hero, Projects, Navbar, CursorFx, JSON-LD, article renderer…)
-content/        case studies + blog posts (JSON)
+content/        case studies + blog posts (Markdown)
 lib/            data, site config, SEO helpers, content loader
 public/img/     images
 scripts/        asset generators, content validator, deploy script

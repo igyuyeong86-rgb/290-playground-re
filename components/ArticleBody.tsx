@@ -1,48 +1,40 @@
-import Image from "next/image";
-import type { Block } from "@/lib/content";
-import Inline from "./Inline";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { withBase } from "@/lib/paths";
 
-const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const headingId = (text: string) =>
+  text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/(^-|-$)/g, "");
 
-export default function ArticleBody({ blocks }: { blocks: Block[] }) {
+export default function ArticleBody({ body }: { body: string }) {
   return (
-    <div className="space-y-4 px-6 py-8 text-[15px] leading-[1.75] text-muted">
-      {blocks.map((b, i) => {
-        switch (b.t) {
-          case "h2":
-            return <h2 key={i} id={slugify(b.x)} className="!mt-10 scroll-mt-16 font-serif text-2xl text-fg">{b.x}</h2>;
-          case "h3":
-            return <h3 key={i} className="!mt-7 text-base font-semibold text-fg">{b.x}</h3>;
-          case "p":
-            return <p key={i}><Inline text={b.x} /></p>;
-          case "ul":
-          case "ol": {
-            const List = b.t === "ul" ? "ul" : "ol";
-            return (
-              <List key={i} className={`space-y-2.5 pl-5 ${b.t === "ul" ? "list-disc" : "list-decimal"} marker:text-soft`}>
-                {b.x.map((li, j) => <li key={j} className="pl-1"><Inline text={li} /></li>)}
-              </List>
-            );
-          }
-          case "quote":
-            return <blockquote key={i} className="rounded-r-md border-l-2 border-fg/40 bg-card px-4 py-3 text-[14px] italic"><Inline text={b.x} /></blockquote>;
-          case "code":
-            return <pre key={i} className="overflow-x-auto rounded-lg border border-line bg-card p-4 font-mono text-[12.5px] leading-relaxed text-fg"><code>{b.x}</code></pre>;
-          case "img":
-            return <Image key={i} src={b.x} alt={b.alt ?? ""} width={1200} height={675} className="rounded-lg border border-line" />;
-          case "table":
-            return (
-              <div key={i} className="overflow-x-auto">
-                <table className="w-full border-collapse text-left text-[13px]">
-                  <thead>
-                    <tr className="border-b border-line">{b.x[0].map((c, k) => <th key={k} scope="col" className="px-3 py-2 font-mono text-[11px] font-normal uppercase tracking-wider text-soft"><Inline text={c} /></th>)}</tr>
-                  </thead>
-                  <tbody>{b.x.slice(1).map((r, j) => <tr key={j} className="border-b border-line">{r.map((c, k) => <td key={k} className="px-3 py-2"><Inline text={c} /></td>)}</tr>)}</tbody>
-                </table>
-              </div>
-            );
-        }
-      })}
+    <div className="article-body px-6 py-8 text-[15px] leading-[1.75] text-muted">
+      <Markdown
+        remarkPlugins={[remarkGfm]}
+        skipHtml
+        components={{
+          h2({ children }) {
+            const title = typeof children === "string" ? children : "";
+            return <h2 id={headingId(title) || undefined}>{children}</h2>;
+          },
+          a({ href, children }) {
+            const external = /^https?:\/\//i.test(href ?? "");
+            const url = href?.startsWith("/") && !href.startsWith("//") ? withBase(href) : href;
+            return <a href={url} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>{children}</a>;
+          },
+          img({ src, alt }) {
+            if (typeof src !== "string" || !src) return null;
+            const url = src.startsWith("/") && !src.startsWith("//") ? withBase(src) : src;
+            // Markdown image dimensions are not known at build time.
+            // eslint-disable-next-line @next/next/no-img-element
+            return <img src={url} alt={alt ?? ""} loading="lazy" className="max-w-full rounded-lg border border-line" />;
+          },
+          table({ children }) {
+            return <div className="overflow-x-auto"><table>{children}</table></div>;
+          },
+        }}
+      >
+        {body}
+      </Markdown>
     </div>
   );
 }

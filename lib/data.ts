@@ -1,6 +1,6 @@
 /**
  * All personal content for the home page lives here. Replace the sample values with your own.
- * Case studies and blog posts live in content/work.json and content/blog.json.
+ * Case studies and blog posts live in content/work/ and content/blog/.
  */
 export const profile = {
   name: "twoninezero",
@@ -43,7 +43,7 @@ export const projects: {
   tags: string[];
   live?: string;
   repo?: string;
-  /** Path of a case study in content/work.json, e.g. "/work/northwind-dashboard". */
+  /** Route for a Markdown file in content/work/, e.g. "/work/northwind-dashboard". */
   caseStudy?: string;
 }[] = [
   {
