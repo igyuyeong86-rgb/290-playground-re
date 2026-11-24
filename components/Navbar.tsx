@@ -10,7 +10,7 @@ import { withBase } from "@/lib/paths";
 const links = [
   { id: "home", label: "Home", href: "/" },
   { id: "projects", label: "Projects", href: "/#projects" },
-  { id: "experience", label: "Experience", href: "/experience" },
+  { id: "experience", label: "Experience", href: "/#experience" },
   { id: "blog", label: "Blog", href: "/blog" },
   { id: "contact", label: "Contact", href: "/#contact" },
 ];
@@ -32,9 +32,7 @@ export default function Navbar({ onSearch }: { onSearch: () => void }) {
   const pathname = usePathname();
   const [spy, setSpy] = useState("home");
   const active =
-    pathname === "/" ? spy :
-    pathname === "/experience" || pathname.startsWith("/experience/") ? "experience" :
-    pathname.startsWith("/blog") ? "blog" : pathname.startsWith("/work") ? "projects" : "";
+    pathname === "/" ? spy : pathname.startsWith("/blog") ? "blog" : pathname.startsWith("/work") ? "projects" : "";
 
   useEffect(() => {
     try {

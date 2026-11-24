@@ -33,7 +33,7 @@ export default function CommandPalette({ open, setOpen, articles }: {
     () => [
       { label: "Home", hint: "Section", href: "/" },
       { label: "Projects", hint: "Section", href: "/#projects" },
-      { label: "Experience", hint: "Page", href: "/experience" },
+      { label: "Experience", hint: "Section", href: "/#experience" },
       { label: "Blog", hint: "Section", href: "/blog" },
       { label: "Contact", hint: "Section", href: "/#contact" },
       { label: "GitHub", hint: "Link", href: profile.github },

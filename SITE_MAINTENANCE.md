@@ -12,8 +12,7 @@
 | GitHub 링크와 활동 그래프 | `lib/data.ts` | `profile.github`는 전체 주소, `profile.githubUser`는 계정 아이디입니다. |
 | 프로젝트 카드와 필터 | `lib/data.ts` | `projects`에서 카드를 수정합니다. 필터를 추가하려면 `Category`와 `projectFilters`도 맞춥니다. |
 | 프로젝트 상세 글 | `content/work/*.md` | 파일의 상단 메타데이터와 Markdown 본문을 수정합니다. |
-| Experience 글 | `content/experience/*.md` | 글마다 Markdown 파일을 추가하면 `/experience/` 목록과 상세 페이지에 표시됩니다. |
-| 홈·이력서의 경력 요약과 기술 스택 | `lib/data.ts` | 경력 요약은 `experience`, 기술 스택은 `stackGroups`에서 수정합니다. |
+| 경력과 기술 스택 | `lib/data.ts` | `experience`, `stackGroups` |
 | 블로그 글 | `content/blog/*.md` | 글마다 Markdown 파일을 하나씩 추가하거나 수정합니다. |
 | 이력서 페이지와 PDF | `lib/data.ts`, `app/resume/page.tsx`, `public/resume.pdf` | 데이터는 `lib/data.ts`, 페이지 구성은 `page.tsx`에서 수정합니다. 다운로드용 PDF는 별도로 교체합니다. |
 | 홈 섹션 순서 | `app/page.tsx` | `<About />`, `<Projects />` 등 섹션 컴포넌트의 순서를 바꿉니다. |
@@ -68,14 +67,6 @@ category: "Study"
 3. 상세 글이 필요하면 `content/work/my-project.md`를 만듭니다. 글의 주소는 `/work/my-project/`입니다. 블로그와 같은 헤더에 `cover: "/img/projects/my-project.jpg"`와 `tags: ["React", "TypeScript"]`를 추가합니다. [샘플 상세 글](content/work/northwind-dashboard.md)을 복사하면 편합니다.
 4. 홈 카드에 `caseStudy: "/work/my-project"`를 넣어 상세 글과 연결합니다. Markdown 파일을 추가하면 상세 페이지는 자동으로 생성되며, 홈 카드는 `lib/data.ts`에서 별도로 관리합니다.
 5. 프로젝트를 지울 때는 홈 카드와 상세 글 사이의 `caseStudy` 링크도 확인합니다.
-
-### Experience 글
-
-`/experience/`에서 전체 경력 글을 볼 수 있습니다. 글마다 `content/experience/`에 Markdown 파일 하나를 만들면 `/experience/파일명/`으로 상세 페이지가 생깁니다.
-
-1. [해커톤 예시 글](content/experience/chungbuk-security-hackathon.md)을 복사하고 파일명을 바꿉니다. 파일명에는 소문자 영문, 숫자, 하이픈을 사용하세요.
-2. 맨 위의 `---` 사이에 `title`과 `date`를 적고, 그 아래에 Markdown 본문을 작성합니다. `category`는 필수가 아닙니다. 페이지 제목에는 `title`이 표시됩니다.
-3. 홈의 경력 요약에서 상세 글을 열 수 있게 하려면 `lib/data.ts`의 `experience` 항목에 `articleSlug: "chungbuk-security-hackathon"`처럼 `.md`를 뺀 파일명을 지정합니다. 홈과 이력서에 나오는 경력 요약 자체는 이 배열에서 따로 관리합니다.
 
 ### 이력서 갱신
 

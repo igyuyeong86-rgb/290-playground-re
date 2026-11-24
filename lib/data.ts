@@ -59,18 +59,11 @@ export const projects: {
   },
 ];
 
-export const experience: {
-  role: string;
-  company: string;
-  period: string;
-  body: string;
-  articleSlug?: string;
-}[] = [
+export const experience = [
   {
     role: "충북 정보보호 해커톤 대상 수상",
     company: "허니 하이라이트 콤보 팀",
     period: "2026.11.21",
-    articleSlug: "chungbuk-security-hackathon",
     body: "충북 정보보호 해커톤 대회에 '허니 하이라이트 콤보'팀으로 참여하여 대상을 수상하였습니다.",
   },
 ];
