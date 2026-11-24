@@ -59,4 +59,6 @@ category: study
 
 일단 이러한 공부를 한 후 이 이후에 관제 실습, 대응 훈련에 대한 공부를 할 계획이다.
 
-![Pasted image 20261124204606.png](public/img/Pasted image 20261124204606.png)
+
+![실습 결과 화면](/img/blog/first-study-note/screenshot.png)
+
