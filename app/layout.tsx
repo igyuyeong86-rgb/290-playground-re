@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { caseStudies, posts, splitTitle } from "@/lib/content";
+import { caseStudies, experiencePosts, posts, splitTitle } from "@/lib/content";
 import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import Chrome from "@/components/Chrome";
 import CursorFx from "@/components/CursorFx";
@@ -49,6 +49,7 @@ const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light")docu
 export default function RootLayout({ children }: LayoutProps<"/">) {
   const articles = [
     ...caseStudies.map((c) => ({ label: splitTitle(c.title).name, hint: "Case study", href: `/work/${c.slug}` })),
+    ...experiencePosts.map((p) => ({ label: p.title, hint: "Experience", href: `/experience/${p.slug}` })),
     ...posts.map((p) => ({ label: p.title, hint: "Post", href: `/blog/${p.slug}` })),
   ];
   return (
